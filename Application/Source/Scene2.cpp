@@ -67,6 +67,7 @@ void Scene2::Init()
 
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sphere", glm::vec3(1.f, 1.f, 1.f), 1.f, 12, 12);
 
+	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(.9f, .5f, .7f), 0.5f, 1.f, 12, 12);
 
 }
 
@@ -106,9 +107,11 @@ void Scene2::Render()
 	// Render objects
 	meshList[GEO_AXES]->Render();
 	//meshList[GEO_QUAD]->Render();
-	meshList[GEO_CIRCLE]->Render();
+	//meshList[GEO_CIRCLE]->Render();
 
-	meshList[GEO_SPHERE]->Render();
+	//meshList[GEO_SPHERE]->Render();
+
+	meshList[GEO_TORUS]->Render();
 
 
 }

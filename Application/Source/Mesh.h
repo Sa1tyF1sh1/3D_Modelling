@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include <string>
-
+#include "Material.h"
 /******************************************************************************/
 /*!
 		Class Mesh:
@@ -12,6 +12,8 @@
 class Mesh
 {
 public:
+	Material material;
+
 	enum DRAW_MODE
 	{
 		DRAW_TRIANGLES, //default mode
