@@ -70,6 +70,7 @@ private:
 	// other variables
 
 	MatrixStack modelStack, viewStack, projectionStack;
+
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	float moonRotation;

@@ -32,7 +32,6 @@ SceneLight::~SceneLight()
 void SceneLight::Init()
 {
 	
-
 	// Initialise camera properties
 	camera.Init(45.f,45.f,10.f);
 	
@@ -76,18 +75,12 @@ void SceneLight::Init()
 	m_parameters[U_LIGHT0_KQ] = glGetUniformLocation(m_programID, "lights[0].kQ");
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
 
-	
-
-	
-
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
 
 	// Calculate the light position in camera space
 	glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
 	glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-
-	
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -107,7 +100,7 @@ void SceneLight::Init()
 	sunRotation = 1.0f;
 
 	currAnim = ANIM_SUN;
-	light[0].position = glm::vec3(0, 5, 0);
+	light[0].position = glm::vec3(0, 2, 0);
 	light[0].color = glm::vec3(1, 1, 1);
 	light[0].power = 1;
 	light[0].kC = 1.f;
@@ -130,9 +123,9 @@ void SceneLight::Update(double dt)
 
 	//moonRotation += static_cast<float>(dt) * 20.f;
 
-	/*sunRotation += static_cast<float>(dt) * 10.f;
+	sunRotation += static_cast<float>(dt) * 10.f;
 	earthRotation += static_cast<float>(dt) * 10.f;
-	moonRotation += static_cast<float>(dt) * 50.f;*/
+	moonRotation += static_cast<float>(dt) * 50.f;
 
 	switch (currAnim) 
 	{
@@ -183,14 +176,11 @@ void SceneLight::Render()
 	//glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 
 	//// Render objects
-	meshList[GEO_AXES]->Render();
+	//meshList[GEO_AXES]->Render();
 	//meshList[GEO_QUAD]->Render();
 	//meshList[GEO_CIRCLE]->Render();
 	//meshList[GEO_SPHERE]->Render();
 	//meshList[GEO_TORUS]->Render();
-
-	
-
 
 	// Load view matrix stack and set it with camera position, target position and up direction
 	viewStack.LoadIdentity();
@@ -206,7 +196,8 @@ void SceneLight::Render()
 	// Render objects
 	RenderMesh(meshList[GEO_AXES], false);
 	modelStack.PopMatrix();
-
+	
+	//Rendering model part													
 	{
 		// Render Sun
 		modelStack.PushMatrix();
@@ -228,10 +219,10 @@ void SceneLight::Render()
 				/*MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
 				glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 				meshList[GEO_SPHERE_GREY]->Render();*/
-				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.4f, 0.4f, 0.4f);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+				meshList[GEO_SPHERE]->material.kShininess = 3.0f;
 				RenderMesh(meshList[GEO_SPHERE], true);
 
 				modelStack.PopMatrix();
@@ -240,7 +231,7 @@ void SceneLight::Render()
 			/*MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
 			glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 			meshList[GEO_SPHERE_BLUE]->Render();*/
-			meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 1.f);
 			meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 			meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_SPHERE]->material.kShininess = 5.0f;
@@ -253,8 +244,8 @@ void SceneLight::Render()
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 		meshList[GEO_SPHERE_ORANGE]->Render();*/
 
-		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1.f, 0.1f, 0.1f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.4f, 0.5f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_SPHERE], true);
@@ -262,8 +253,8 @@ void SceneLight::Render()
 		modelStack.PopMatrix();
 	}
 
-	modelStack.PushMatrix();
 	// Render light
+	modelStack.PushMatrix();
 	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -321,8 +312,7 @@ void SceneLight::HandleKeyPress()
 		else
 		{
 			projType = 0; // Orthographic
-		}
-			
+		}	
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed('E'))
@@ -352,7 +342,6 @@ void SceneLight::HandleKeyPress()
 		sunRotation = 0.0f;
 	}
 
-
 }
 
 void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)
@@ -363,6 +352,7 @@ void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)
 	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 	modelView = viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, glm::value_ptr(modelView));
+
 	if (enableLight)
 	{
 		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
