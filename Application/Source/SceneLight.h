@@ -78,6 +78,7 @@ private:
 	float sunRotation;
 
 	Light light[1];
+	bool enableLight;
 	// Keep track of current animation
 	ANIMATION currAnim;
 

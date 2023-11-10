@@ -31,17 +31,16 @@ SceneLight::~SceneLight()
 
 void SceneLight::Init()
 {
-	
 	// Initialise camera properties
-	camera.Init(45.f,45.f,10.f);
-	
+	camera.Init(45.f, 45.f, 10.f);
+
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 	//Enable depth buffer and depth testing
 	glEnable(GL_DEPTH_TEST);
 
-	//Enable back face culling
+	// Enable back face culling
 	glEnable(GL_CULL_FACE);
 
 	//Default to fill mode
@@ -51,15 +50,12 @@ void SceneLight::Init()
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
 
-	// Load the shader programs
-	/*m_programID = LoadShaders("Shader//TransformVertexShader.vertexshader",
-								"Shader//SimpleFragmentShader.fragmentshader");*/
-								// Load the shader programs
 	m_programID = LoadShaders("Shader//Shading.vertexshader",
 		"Shader//Shading.fragmentshader");
 	glUseProgram(m_programID);
 
 	// Get a handle for our "MVP" uniform
+	{
 	m_parameters[U_MVP] = glGetUniformLocation(m_programID, "MVP");
 	m_parameters[U_MODELVIEW] = glGetUniformLocation(m_programID, "MV");
 	m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE] = glGetUniformLocation(m_programID, "MV_inverse_transpose");
@@ -74,6 +70,7 @@ void SceneLight::Init()
 	m_parameters[U_LIGHT0_KL] = glGetUniformLocation(m_programID, "lights[0].kL");
 	m_parameters[U_LIGHT0_KQ] = glGetUniformLocation(m_programID, "lights[0].kQ");
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
+	}
 
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
@@ -95,11 +92,15 @@ void SceneLight::Init()
 
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Planet", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 
+	// Init default data on start
+	{
 	moonRotation = 1.0f;
 	earthRotation = 1.0f;
 	sunRotation = 1.0f;
 
 	currAnim = ANIM_SUN;
+	enableLight = true;
+
 	light[0].position = glm::vec3(0, 2, 0);
 	light[0].color = glm::vec3(1, 1, 1);
 	light[0].power = 1;
@@ -112,11 +113,12 @@ void SceneLight::Init()
 	glUniform1f(m_parameters[U_LIGHT0_KC], light[0].kC);
 	glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
 	glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
+	}
 }
 
 void SceneLight::Update(double dt)
 {
-	// Check for key press, you can add more for interaction
+	// Check for key press
 	HandleKeyPress();
 
 	camera.Update(dt);
@@ -142,6 +144,23 @@ void SceneLight::Update(double dt)
 		break;
 	}
 
+	// Controller for movement of light source
+	{
+	if (KeyboardController::GetInstance()->IsKeyDown('I'))
+		light[0].position.z -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('K'))
+		light[0].position.z += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('J'))
+		light[0].position.x -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('L'))
+		light[0].position.x += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('O'))
+		light[0].position.y -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('P'))
+		light[0].position.y += static_cast<float>(dt) * 5.f;
+	}
+
+	//Debugging code
 	std::cout << "Moon: " << moonRotation << '\n' << "Sun: " << sunRotation << '\n' << "Earth: " << earthRotation << '\n';
 }
 
@@ -223,7 +242,7 @@ void SceneLight::Render()
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 				meshList[GEO_SPHERE]->material.kShininess = 3.0f;
-				RenderMesh(meshList[GEO_SPHERE], true);
+				RenderMesh(meshList[GEO_SPHERE], enableLight);
 
 				modelStack.PopMatrix();
 			}
@@ -235,7 +254,7 @@ void SceneLight::Render()
 			meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 			meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[GEO_SPHERE], true);
+			RenderMesh(meshList[GEO_SPHERE], enableLight);
 
 			modelStack.PopMatrix();
 		}
@@ -248,12 +267,13 @@ void SceneLight::Render()
 		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.4f, 0.5f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SPHERE], true);
+		RenderMesh(meshList[GEO_SPHERE], enableLight);
 
 		modelStack.PopMatrix();
 	}
 
 	// Render light
+	{
 	modelStack.PushMatrix();
 	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
@@ -263,6 +283,7 @@ void SceneLight::Render()
 	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_SPHERE], false);
 	modelStack.PopMatrix();
+	}
 }
 
 void SceneLight::Exit()
@@ -333,6 +354,7 @@ void SceneLight::HandleKeyPress()
 		currAnim = ANIM_SUN;
 		
 	}
+
 	if (KeyboardController::GetInstance()->IsKeyPressed('R'))
 	{
 		// Reset everything to original state
@@ -341,6 +363,13 @@ void SceneLight::HandleKeyPress()
 		earthRotation = 0.0f;
 		sunRotation = 0.0f;
 	}
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
+	{
+		// Toggle light on or off
+		enableLight = !enableLight;
+	}
+
 
 }
 
