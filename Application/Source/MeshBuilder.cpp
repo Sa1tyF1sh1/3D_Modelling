@@ -267,4 +267,3 @@ Mesh* MeshBuilder::GenerateTorus(const std::string& meshName, glm::vec3 color, f
 
 	return mesh;
 }
-

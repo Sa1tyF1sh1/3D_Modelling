@@ -88,9 +88,11 @@ void SceneLight::Init()
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
+	//Generate the basic mnesh
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Planet", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Joints", glm::vec3(1.f, 1.f, 1.f), 1.f, 6, 6);
+	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.5f, 1, 8, 8);
 
 	// Init default data on start
 	{
@@ -99,7 +101,7 @@ void SceneLight::Init()
 	sunRotation = 1.0f;
 
 	currAnim = ANIM_SUN;
-	enableLight = true;
+	enableLight = false;
 
 	light[0].position = glm::vec3(0, 2, 0);
 	light[0].color = glm::vec3(1, 1, 1);
@@ -120,15 +122,14 @@ void SceneLight::Update(double dt)
 {
 	// Check for key press
 	HandleKeyPress();
-
 	camera.Update(dt);
 
-	//moonRotation += static_cast<float>(dt) * 20.f;
-
-	sunRotation += static_cast<float>(dt) * 10.f;
+	moonRotation += static_cast<float>(dt) * 20.f;
+	/*sunRotation += static_cast<float>(dt) * 10.f;
 	earthRotation += static_cast<float>(dt) * 10.f;
-	moonRotation += static_cast<float>(dt) * 50.f;
+	moonRotation += static_cast<float>(dt) * 50.f;*/
 
+	//Do animation here
 	switch (currAnim) 
 	{
 	case ANIM_MOON:
@@ -141,6 +142,34 @@ void SceneLight::Update(double dt)
 
 	case ANIM_SUN:
 		sunRotation += static_cast<float>(dt) * 10.f;
+		break;
+
+	case ANIM_IDLE:
+		//Idle anim
+
+		break;
+
+	case ANIM_WAVING:
+		//Waving anim
+
+		break;
+
+	case ANIM_SWIMMING:
+		//Swin anim
+
+		break;
+
+	case ANIM_SUMMERSAULT:
+		//Summersault anim
+
+		break;
+
+	case ANIM_COMBO_ATTACK:
+		//Combo attack anim
+
+		break;
+
+	default:
 		break;
 	}
 
@@ -159,9 +188,6 @@ void SceneLight::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	}
-
-	//Debugging code
-	std::cout << "Moon: " << moonRotation << '\n' << "Sun: " << sunRotation << '\n' << "Earth: " << earthRotation << '\n';
 }
 
 void SceneLight::Render()
@@ -211,79 +237,176 @@ void SceneLight::Render()
 	// Calculate the light position in camera space
 	glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
 	glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+
 	modelStack.PushMatrix();
 	// Render objects
 	RenderMesh(meshList[GEO_AXES], false);
 	modelStack.PopMatrix();
 	
-	//Rendering model part													
+	// Render light
 	{
-		// Render Sun
 		modelStack.PushMatrix();
-		modelStack.Rotate(sunRotation * 5.f, 0.f, 1.f, 0.f);
-
+		modelStack.Translate(light[0].position.x, light[0].position.y + 3, light[0].position.z);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_SPHERE]->material.kShininess = 3.0f;
+		RenderMesh(meshList[GEO_SPHERE], enableLight);
+		modelStack.PopMatrix();
+	}
+	//Render of the head
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, 2, 0);
+		modelStack.Scale(1.9f, 1.5f, 1.5f);
+		modelStack.Rotate(moonRotation * 3.f, 0, 1, 0);
+		//Render the of two eye
 		{
-			// Render Earth
+			//Render the of left eye
 			modelStack.PushMatrix();
-			modelStack.Translate(3.f, 0.f, 0.f);
-			modelStack.Rotate(earthRotation * 5.f, 0.f, 1.f, 0.f);
-
+			modelStack.Translate(-0.8f, 0, 0.5f);
+			modelStack.Scale(0.25f, 0.25f, 0.25f);	
+			modelStack.Rotate(90, 1, 0, 0);
+			modelStack.Rotate(60, 0, 0, 1);	
 			{
-				// Render the moon
+				//Eye ball left
 				modelStack.PushMatrix();
-				modelStack.Translate(1.5f, 0.f, 0.f);
-				modelStack.Rotate(moonRotation * 5.f, 0.f, 1.f, 0.f);
-				modelStack.Scale(0.3f, 0.3f, 0.3f);
+				modelStack.Scale(0.53f, 0.13f, 0.53f);
 
-				/*MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-				glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
-				meshList[GEO_SPHERE_GREY]->Render();*/
-				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.4f, 0.4f, 0.4f);
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_SPHERE]->material.kShininess = 3.0f;
-				RenderMesh(meshList[GEO_SPHERE], enableLight);
+				meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_SPHERE], true);
 
 				modelStack.PopMatrix();
 			}
-
-			/*MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-			glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
-			meshList[GEO_SPHERE_BLUE]->Render();*/
-			meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 1.f);
-			meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-			meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[GEO_SPHERE], enableLight);
-
+			meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
+			meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+			meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_TORUS]->material.kShininess = 3.0f;
+			RenderMesh(meshList[GEO_TORUS], true);
 			modelStack.PopMatrix();
+
+			//Render the of right eye
+			modelStack.PushMatrix();
+			modelStack.Translate(0.8f, 0, 0.5f);
+			modelStack.Scale(0.25f, 0.25f, 0.25f);
+			
+			modelStack.Rotate(90, 1, 0, 0);
+			modelStack.Rotate(-60, 0, 0, 1);
+			
+			{
+				//Eye ball right
+				modelStack.PushMatrix();
+				modelStack.Scale(0.53f, 0.13f, 0.53f);
+
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
+				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
+			meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
+			meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+			meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_TORUS]->material.kShininess = 3.0f;
+			RenderMesh(meshList[GEO_TORUS], true);
+			modelStack.PopMatrix();
+
 		}
 
-		/*MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
-		meshList[GEO_SPHERE_ORANGE]->Render();*/
-
-		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1.f, 0.1f, 0.1f);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.4f, 0.5f);
-		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SPHERE], enableLight);
-
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.03f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	}
 
-	// Render light
-	{
-	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], false);
-	modelStack.PopMatrix();
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void SceneLight::Exit()
@@ -367,10 +490,36 @@ void SceneLight::HandleKeyPress()
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
 	{
 		// Toggle light on or off
+		std::cout << "Light !" << enableLight <<'\n';
 		enableLight = !enableLight;
 	}
 
-
+	//Start idle animation
+	if (KeyboardController::GetInstance()->IsKeyPressed('Z'))
+	{
+		currAnim = ANIM_IDLE;
+		std::cout <<"IDLING" << '\n';
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('X'))
+	{
+		currAnim = ANIM_WAVING;
+		std::cout << "Waving !" << '\n';
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('C'))
+	{
+		currAnim = ANIM_SWIMMING;
+		std::cout << "Swimming !" << '\n';
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('V'))
+	{
+		currAnim = ANIM_SUMMERSAULT;
+		std::cout << "Summersaulting !" << '\n';
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('B'))
+	{
+		currAnim = ANIM_COMBO_ATTACK;
+		std::cout << "Combo attacking !" << '\n';
+	}
 }
 
 void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)
