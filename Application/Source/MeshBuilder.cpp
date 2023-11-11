@@ -95,11 +95,15 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	v.color = color;
 
 	// Add the vertices here
-	v.pos = glm::vec3(0.5f * length, -0.5f * length, 0.f);  vertex_buffer_data.push_back(v);
-	v.pos = glm::vec3(0.5f * length, 0.5f * length, 0.f);   vertex_buffer_data.push_back(v);
-	v.pos = glm::vec3(-0.5f * length, 0.5f * length, 0.f);  vertex_buffer_data.push_back(v);
-	v.pos = glm::vec3(-0.5f * length, -0.5f * length, 0.f); vertex_buffer_data.push_back(v);
+	v.pos = glm::vec3(0.5f * length, -0.5f * length, -0.5f);  vertex_buffer_data.push_back(v); //V0
+	v.pos = glm::vec3(0.5f * length, 0.5f * length, -0.5f);   vertex_buffer_data.push_back(v); //V1
+	v.pos = glm::vec3(-0.5f * length, 0.5f * length, -0.5f);  vertex_buffer_data.push_back(v); //V2
+	v.pos = glm::vec3(-0.5f * length, -0.5f * length, -0.5f); vertex_buffer_data.push_back(v); //V3
 
+	v.pos = glm::vec3(0.5f * length, -0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v); //V4
+	v.pos = glm::vec3(0.5f * length, 0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v);	//V5
+	v.pos = glm::vec3(-0.5f * length, 0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v);	//V6
+	v.pos = glm::vec3(-0.5f * length, -0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v); //V7
 
 	index_buffer_data.push_back(0);
 	index_buffer_data.push_back(1);
@@ -108,6 +112,14 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	index_buffer_data.push_back(0);
 	index_buffer_data.push_back(2);
 	index_buffer_data.push_back(3);
+
+	index_buffer_data.push_back(1);
+	index_buffer_data.push_back(5);
+	index_buffer_data.push_back(4);
+
+	index_buffer_data.push_back(1);
+	index_buffer_data.push_back(4);
+	index_buffer_data.push_back(0);
 
 	// Create the new mesh
 	Mesh* mesh = new Mesh(meshName);
