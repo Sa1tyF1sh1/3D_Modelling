@@ -100,7 +100,7 @@ void SceneLight::Init()
 	//3.
 	meshList[GEO_TORUS_01] = MeshBuilder::GenerateTorus("Torus_01", glm::vec3(1, 1, 1), 0.5f, 0.35f, 8, 8);
 	//4.
-	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Circle", glm::vec3(1, 1, 1), 1, 2, 12);
+	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Circle", glm::vec3(1, 1, 1), 1, 2, 2, 4);
 
 	// Init default data on start
 	{

@@ -135,7 +135,7 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	return mesh;
 }
 
-Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color, float radius,int height, int numSlice)
+Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color, float topRadius, float btmRadius, int height, int numSlice)
 {
 	Vertex v;                              // Vertex definition
 	std::vector<Vertex> vertex_buffer_data;// Vertex Buffer Object ( VBOs )
@@ -152,7 +152,7 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 	for (int i = 0; i < numSlice; i++) 
 	{
 		float theta = i * anglePerSlice;
-		v.pos = glm::vec3(radius * glm::cos(theta), 0, radius * glm::sin(theta));
+		v.pos = glm::vec3(btmRadius * glm::cos(theta), 0, btmRadius * glm::sin(theta));
 
 		
 		vertex_buffer_data.push_back(v);
@@ -165,7 +165,7 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 	{
 		float theta = y * anglePerSlice;
 
-		v.pos = glm::vec3(radius * glm::cos(theta), height, radius * glm::sin(theta));
+		v.pos = glm::vec3(topRadius * glm::cos(theta), height, topRadius * glm::sin(theta));
 
 		vertex_buffer_data.push_back(v);
 	}
