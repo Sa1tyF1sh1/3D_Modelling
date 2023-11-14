@@ -135,7 +135,7 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	return mesh;
 }
 
-Mesh* MeshBuilder::GenerateCircle(const std::string& meshName, glm::vec3 color, float radius, int numSlice)
+Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color, float radius,int height, int numSlice)
 {
 	Vertex v;                              // Vertex definition
 	std::vector<Vertex> vertex_buffer_data;// Vertex Buffer Object ( VBOs )
@@ -148,17 +148,48 @@ Mesh* MeshBuilder::GenerateCircle(const std::string& meshName, glm::vec3 color, 
 	v.pos = glm::vec3(0, 0, 0);
 	vertex_buffer_data.push_back(v);
 
-	for (int i = 1; i <= numSlice + 1; i++) {
-		float theta = (i - 1) * anglePerSlice;
-
+	//Bottom circle
+	for (int i = 0; i < numSlice; i++) 
+	{
+		float theta = i * anglePerSlice;
 		v.pos = glm::vec3(radius * glm::cos(theta), 0, radius * glm::sin(theta));
+
+		
+		vertex_buffer_data.push_back(v);
+	}
+
+	v.pos = glm::vec3(0, 0, 0);
+	vertex_buffer_data.push_back(v);
+	//Top circle
+	for (int y = 0; y < numSlice; y++)
+	{
+		float theta = y * anglePerSlice;
+
+		v.pos = glm::vec3(radius * glm::cos(theta), height, radius * glm::sin(theta));
 
 		vertex_buffer_data.push_back(v);
 	}
 
-	for (int i = 1; i <= numSlice + 1; i++) {
-		index_buffer_data.push_back(i);
+	for (int i = 1; i <= numSlice; i++)
+	{	
+		// Bottom circle
 		index_buffer_data.push_back(0);
+		index_buffer_data.push_back(i);
+		index_buffer_data.push_back((i % numSlice) + 1);
+
+		// Top circle
+		index_buffer_data.push_back(numSlice + 1);
+		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));
+		index_buffer_data.push_back(numSlice + 1 + i);
+
+		// Side faces
+		index_buffer_data.push_back(i);
+		index_buffer_data.push_back((i % numSlice) + 1);
+		index_buffer_data.push_back(numSlice + 1 + i);
+
+		index_buffer_data.push_back((i % numSlice) + 1);
+		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));
+		index_buffer_data.push_back(numSlice + 1 + i);
 	}
 
 	// Create the new mesh

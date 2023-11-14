@@ -93,9 +93,14 @@ void SceneLight::Init()
 
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1,1,1), 1);
 
+	//1.
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Joints", glm::vec3(1.f, 1.f, 1.f), 1.f, 6, 6);
+	//2.
 	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.5f, 1, 8, 8);
+	//3.
 	meshList[GEO_TORUS_01] = MeshBuilder::GenerateTorus("Torus_01", glm::vec3(1, 1, 1), 0.5f, 0.35f, 8, 8);
+	//4.
+	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Circle", glm::vec3(1, 1, 1), 1, 2, 12);
 
 	// Init default data on start
 	{
@@ -407,7 +412,7 @@ void SceneLight::Render()
 
 	{
 		//Right leg Joints
-		modelStack.PushMatrix();
+		/*modelStack.PushMatrix();
 		modelStack.Translate(1.f, -2, 0);
 		modelStack.Scale(0.35f, 0.35f, 0.35f);
 		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -415,6 +420,16 @@ void SceneLight::Render()
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
 		RenderMesh(meshList[GEO_SPHERE], true);
+		modelStack.PopMatrix();*/
+
+		modelStack.PushMatrix();
+		modelStack.Translate(3.f, -2, 0);
+		modelStack.Scale(1, 1, 1);
+		meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+		meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
+		RenderMesh(meshList[GEO_CYLINDER], true);
 		modelStack.PopMatrix();
 	}
 
