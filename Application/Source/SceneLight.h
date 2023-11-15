@@ -20,6 +20,7 @@ public:
 		GEO_QUAD,
 		GEO_TORUS_01,
 		GEO_CYLINDER,
+		GEO_CUBE,
 
 		NUM_GEOMETRY,
 	};

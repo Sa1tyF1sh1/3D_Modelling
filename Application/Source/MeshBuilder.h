@@ -17,11 +17,15 @@ public:
 
 	static Mesh* GenerateQuad(const std::string& meshName, glm::vec3 color, float length = 1.f);
 
+	//1.
 	static Mesh* GenerateCylinder(const std::string& meshName, glm::vec3 color, float topRadius = 1, float btmRadius = 1, int height = 1, int numSlice = 360);
-
+	//2.
 	static Mesh* GenerateSphere(const std::string& meshName,glm::vec3 color,float radius = 1.f,int numSlice = 360,int numStack = 360);
-
+	//3.
 	static Mesh* GenerateTorus(const std::string& meshName, glm::vec3 color, float innerR = 1.f, float outerR = 1.f, int numSlice = 360, int numStack = 360);
+	//4.
+	static Mesh* GenerateCube(const std::string& meshName, glm::vec3 color, float topRadius = 1, float btmRadius = 1, int height = 1, int numSlice = 360);
+
 };
 
 #endif

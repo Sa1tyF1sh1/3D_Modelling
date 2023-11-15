@@ -135,6 +135,8 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	return mesh;
 }
 
+
+/******************************************************************************/
 Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color, float topRadius, float btmRadius, int height, int numSlice)
 {
 	Vertex v;                              // Vertex definition
@@ -178,14 +180,18 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 		index_buffer_data.push_back((i % numSlice) + 1);
 
 		// Top circle
-		index_buffer_data.push_back(numSlice + 1);
-		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));
+		index_buffer_data.push_back(numSlice);
+		index_buffer_data.push_back(numSlice +i);
+		index_buffer_data.push_back(numSlice + (i % numSlice) + 1);
+
+		index_buffer_data.push_back(numSlice + 2);									//5,5, 5
+		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));			//7,
 		index_buffer_data.push_back(numSlice + 1 + i);
 
 		// Side faces
-		index_buffer_data.push_back(i);
-		index_buffer_data.push_back((i % numSlice) + 1);
-		index_buffer_data.push_back(numSlice + 1 + i);
+		index_buffer_data.push_back(i);						// 1,2,3
+		index_buffer_data.push_back((i % numSlice) + 1);	//2,3,4
+		index_buffer_data.push_back(numSlice + 1 + i);		//5,6,7
 
 		index_buffer_data.push_back((i % numSlice) + 1);
 		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));
@@ -309,4 +315,84 @@ Mesh* MeshBuilder::GenerateTorus(const std::string& meshName, glm::vec3 color, f
 	mesh->mode = Mesh::DRAW_TRIANGLE_STRIP;
 
 	return mesh;
+}
+
+Mesh* MeshBuilder::GenerateCube(const std::string& meshName, glm::vec3 color, float topRadius, float btmRadius, int height, int numSlice)
+{
+	Vertex v;                              // Vertex definition
+	std::vector<Vertex> vertex_buffer_data;// Vertex Buffer Object ( VBOs )
+	std::vector<GLuint> index_buffer_data; // Element Buffer Object ( EBOs )
+
+	v.color = color;
+
+	float anglePerSlice = glm::two_pi<float>() / numSlice;
+
+	v.pos = glm::vec3(0, 0, 0);
+	vertex_buffer_data.push_back(v);
+
+	//Bottom circle
+	for (int i = 0; i < numSlice; i++)
+	{
+		float theta = i * anglePerSlice;
+		v.pos = glm::vec3(btmRadius * glm::cos(theta), 0, btmRadius * glm::sin(theta));
+
+
+		vertex_buffer_data.push_back(v);
+	}
+
+	v.pos = glm::vec3(0, 0, 0);
+	vertex_buffer_data.push_back(v);
+	//Top circle
+	for (int y = 0; y < numSlice; y++)
+	{
+		float theta = y * anglePerSlice;
+
+		v.pos = glm::vec3(topRadius * glm::cos(theta), height, topRadius * glm::sin(theta));
+
+		vertex_buffer_data.push_back(v);
+	}
+
+	for (int i = 1; i <= numSlice; i++)
+	{
+		// Bottom circle
+		index_buffer_data.push_back(0);
+		index_buffer_data.push_back(i);
+		index_buffer_data.push_back((i % numSlice) + 1);
+
+		// Top circle
+		index_buffer_data.push_back(numSlice);
+		index_buffer_data.push_back(numSlice + i);
+		index_buffer_data.push_back(numSlice + (i % numSlice) + 1);
+
+		index_buffer_data.push_back(numSlice + 2);									//5,5, 5
+		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));			//7,
+		index_buffer_data.push_back(numSlice + 1 + i);
+
+		// Side faces
+		index_buffer_data.push_back(i);						// 1,2,3
+		index_buffer_data.push_back((i % numSlice) + 1);	//2,3,4
+		index_buffer_data.push_back(numSlice + 1 + i);		//5,6,7
+
+		index_buffer_data.push_back((i % numSlice) + 1);
+		index_buffer_data.push_back(numSlice + 1 + ((i % numSlice) + 1));
+		index_buffer_data.push_back(numSlice + 1 + i);
+	}
+
+	// Create the new mesh
+	Mesh* mesh = new Mesh(meshName);
+
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.size() * sizeof(Vertex),
+		&vertex_buffer_data[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_data.size() * sizeof(GLuint),
+		&index_buffer_data[0], GL_STATIC_DRAW);
+
+	mesh->indexSize = index_buffer_data.size();
+	mesh->mode = Mesh::DRAW_TRIANGLE_STRIP;
+
+	return mesh;
+
+
 }
