@@ -113,7 +113,7 @@ void SceneLight::Init()
 	currAnim = ANIM_SUN;
 	enableLight = false;
 
-	light[0].position = glm::vec3(0, 2, 0);
+	light[0].position = glm::vec3(0, 5, 0);
 	light[0].color = glm::vec3(1, 1, 1);
 	light[0].power = 1;
 	light[0].kC = 1.f;
@@ -125,6 +125,9 @@ void SceneLight::Init()
 	glUniform1f(m_parameters[U_LIGHT0_KC], light[0].kC);
 	glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
 	glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
+
+	eyeSize = 0.3f;
+	speed = 75;
 	}
 }
 
@@ -134,7 +137,12 @@ void SceneLight::Update(double dt)
 	HandleKeyPress();
 	camera.Update(dt);
 
-	moonRotation += static_cast<float>(dt) * 20.f;
+	if (moonRotation >= 100 || moonRotation <= -100)
+	{
+		speed = -speed;
+	}
+	std::cout << "Speed: " << moonRotation << '\n';
+	moonRotation += static_cast<float>(dt) * speed;
 	/*sunRotation += static_cast<float>(dt) * 10.f;
 	earthRotation += static_cast<float>(dt) * 10.f;
 	moonRotation += static_cast<float>(dt) * 50.f;*/
@@ -143,15 +151,15 @@ void SceneLight::Update(double dt)
 	switch (currAnim) 
 	{
 	case ANIM_MOON:
-		moonRotation += static_cast<float>(dt) * 50.f;
+		//moonRotation += static_cast<float>(dt) * 50.f;
 		break;
 
 	case ANIM_EARTH:
-		earthRotation += static_cast<float>(dt) * 10.f;
+		//earthRotation += static_cast<float>(dt) * 10.f;
 		break;
 
 	case ANIM_SUN:
-		sunRotation += static_cast<float>(dt) * 10.f;
+		//sunRotation += static_cast<float>(dt) * 10.f;
 		break;
 
 	case ANIM_IDLE:
@@ -266,122 +274,149 @@ void SceneLight::Render()
 		modelStack.PopMatrix();
 	}
 
-	//Render area of head
+	//Whole upper body
 	{
-		//Render of neck
-		modelStack.PushMatrix();	
-		//Render of the head
+		//Render of pelvis
+		modelStack.PushMatrix();
 		{
-			modelStack.PushMatrix();
-			modelStack.Translate(0, 2, 0);
-			modelStack.Scale(1.9f, 1.5f, 1.5f);
-			//modelStack.Rotate(moonRotation * 3.f, 0, 1, 0);
-			//Render the of two eye
+			//Render area of head
 			{
-				//Render the of left eye
+				//Render of neck
 				modelStack.PushMatrix();
-				modelStack.Translate(-0.8f, 0, 0.5f);
-				modelStack.Scale(0.25f, 0.25f, 0.25f);
-				modelStack.Rotate(90, 1, 0, 0);
-				modelStack.Rotate(60, 0, 0, 1);
+				modelStack.Rotate(moonRotation, 0, 1, 0);
+				//Render of the head
 				{
-					//Eye ball left
 					modelStack.PushMatrix();
-					modelStack.Scale(0.53f, 0.13f, 0.53f);
-					meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
-					meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-					meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					//Render the of two eye
+					{
+						//Render the of left eye
+						modelStack.PushMatrix();
+						{
+							//Eye ball left
+							modelStack.PushMatrix();
+							modelStack.Translate(-1, 2.2f, 1.1f);
+							modelStack.Scale(eyeSize, eyeSize, eyeSize);
+							modelStack.Rotate(90, 1, 0, 0);
+							meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
+							meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+							meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+							RenderMesh(meshList[GEO_SPHERE], true);
+
+							modelStack.PopMatrix();
+						}
+						modelStack.Translate(-1, 2.2f, 1.15f);
+						modelStack.Scale(eyeSize, eyeSize, eyeSize);
+						modelStack.Rotate(90, 1, 0, 0);
+						modelStack.Rotate(45, 0, 0, 1);
+
+						meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
+						meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+						meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_TORUS]->material.kShininess = 3.0f;
+						RenderMesh(meshList[GEO_TORUS], true);
+						modelStack.PopMatrix();
+
+						//Render the of right eye
+						modelStack.PushMatrix();
+						{
+							//Eye ball right
+							modelStack.PushMatrix();
+							modelStack.Translate(1, 2.2f, 1.1f);
+							modelStack.Scale(eyeSize, eyeSize, eyeSize);
+							modelStack.Rotate(90, 1, 0, 0);
+							meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
+							meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+							meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+							RenderMesh(meshList[GEO_SPHERE], true);
+							modelStack.PopMatrix();
+						}
+						modelStack.Translate(1, 2.2f, 1.15f);
+						modelStack.Scale(eyeSize, eyeSize, eyeSize);
+						modelStack.Rotate(90, 1, 0, 0);
+						modelStack.Rotate(-45, 0, 0, 1);
+
+						meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
+						meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+						meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_TORUS]->material.kShininess = 3.0f;
+						RenderMesh(meshList[GEO_TORUS], true);
+						modelStack.PopMatrix();
+					}
+					modelStack.Translate(0, 2, 0);
+					modelStack.Scale(1.9f, 1.5f, 1.5f);
+
+					meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.03f);
+					meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+					meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
 					meshList[GEO_SPHERE]->material.kShininess = 1.0f;
 					RenderMesh(meshList[GEO_SPHERE], true);
-
 					modelStack.PopMatrix();
 				}
+				modelStack.Translate(0, 0.45f, 0);
+				modelStack.Scale(0.35f, 0.35f, 0.35f);
 
-				meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
-				meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-				meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_TORUS]->material.kShininess = 3.0f;
-				RenderMesh(meshList[GEO_TORUS], true);
-				modelStack.PopMatrix();
-
-				//Render the of right eye
-				modelStack.PushMatrix();
-				modelStack.Translate(0.8f, 0, 0.5f);
-				modelStack.Scale(0.25f, 0.25f, 0.25f);
-				modelStack.Rotate(90, 1, 0, 0);
-				modelStack.Rotate(-60, 0, 0, 1);
-
-				{
-					//Eye ball right
-					modelStack.PushMatrix();
-					modelStack.Scale(0.53f, 0.13f, 0.53f);
-
-					meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
-					meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-					meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-					meshList[GEO_SPHERE]->material.kShininess = 1.0f;
-					RenderMesh(meshList[GEO_SPHERE], true);
-					modelStack.PopMatrix();
-				}
-				meshList[GEO_TORUS]->material.kAmbient = glm::vec3(0.7f, 0.4f, 0.f);
-				meshList[GEO_TORUS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-				meshList[GEO_TORUS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_TORUS]->material.kShininess = 3.0f;
-				RenderMesh(meshList[GEO_TORUS], true);
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-			meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.03f);
-			meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-			meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[GEO_SPHERE]->material.kShininess = 1.0f;
-			RenderMesh(meshList[GEO_SPHERE], true);
-			modelStack.PopMatrix();
-		}
-		modelStack.Translate(0, 0.45f, 0);
-		modelStack.Scale(0.35f, 0.35f, 0.35f);
 
-		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-	}
-	
-	//Render area of upper body
-
-	{
-		//Render of chest
-		
-		modelStack.PushMatrix();
-		modelStack.Translate(0, -0.9f, 0);
-		modelStack.Scale(1.25f, 2.65f, 1.25f);
-		meshList[GEO_TORUS_01]->material.kAmbient = glm::vec3(0.75f, 0.25f, 0.03f);
-		meshList[GEO_TORUS_01]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-		meshList[GEO_TORUS_01]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_TORUS_01]->material.kShininess = 1.0f;
-		RenderMesh(meshList[GEO_TORUS_01], true);
-		modelStack.PopMatrix();
-
-	}
-
-	//Render of left hand
-	{
-		//Left shoulder Joints
-		modelStack.PushMatrix();
-		{
-			//Left upper limbs
-			modelStack.PushMatrix();
+			//Render area of upper body
 			{
-				//Left hand - Mid joint
+				//Render of chest
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0, -0.9f, 0);
+				modelStack.Scale(1.25f, 2.65f, 1.25f);
+				meshList[GEO_TORUS_01]->material.kAmbient = glm::vec3(0.75f, 0.25f, 0.03f);
+				meshList[GEO_TORUS_01]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+				meshList[GEO_TORUS_01]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[GEO_TORUS_01]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_TORUS_01], true);
+				modelStack.PopMatrix();
+
+			}
+
+			//Render of left hand
+			{
+				//Left shoulder Joints
 				modelStack.PushMatrix();
 				{
-					//Left lower limbs
+					//Left upper limbs
 					modelStack.PushMatrix();
 					{
-						//Left paw joint
+						//Left hand - Mid joint
 						modelStack.PushMatrix();
-						modelStack.Translate(-3.65f, 0, 0);
+						{
+							//Left lower limbs
+							modelStack.PushMatrix();
+							{
+								//Left paw joint
+								modelStack.PushMatrix();
+								modelStack.Translate(-3.65f, 0, 0);
+								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+								meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+								RenderMesh(meshList[GEO_SPHERE], true);
+								modelStack.PopMatrix();
+							}
+							modelStack.Translate(-2.55f, 0, 0);
+							modelStack.Scale(0.5f, 0.25f, 0.25f);
+							modelStack.Rotate(90, 0, 0, 1);
+							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+							meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
+							RenderMesh(meshList[GEO_CYLINDER], true);
+							modelStack.PopMatrix();
+						}
+						modelStack.Translate(-2.45f, 0, 0);
 						modelStack.Scale(0.35f, 0.35f, 0.35f);
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -390,7 +425,7 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_SPHERE], true);
 						modelStack.PopMatrix();
 					}
-					modelStack.Translate(-2.55f, 0, 0);
+					modelStack.Translate(-1.35f, 0, 0);
 					modelStack.Scale(0.5f, 0.25f, 0.25f);
 					modelStack.Rotate(90, 0, 0, 1);
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -400,7 +435,7 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(-2.45f, 0, 0);
+				modelStack.Translate(-1.2f, 0, 0);
 				modelStack.Scale(0.35f, 0.35f, 0.35f);
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -409,43 +444,43 @@ void SceneLight::Render()
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-			modelStack.Translate(-1.35f, 0, 0);
-			modelStack.Scale(0.5f, 0.25f, 0.25f);
-			modelStack.Rotate(90, 0, 0, 1);
-			meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
-			meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-			meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
-			RenderMesh(meshList[GEO_CYLINDER], true);
-			modelStack.PopMatrix();
-		}
-		modelStack.Translate(-1.2f, 0, 0);
-		modelStack.Scale(0.35f, 0.35f, 0.35f);
-		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-	}
 
-	//Render of right hand
-	{
-		//Right shoulder Joints
-		modelStack.PushMatrix();
-		{
-			//Right upper limbs
-			modelStack.PushMatrix();
+			//Render of right hand
 			{
-				//Right hand - Mid joint
+				//Right shoulder Joints
 				modelStack.PushMatrix();
 				{
-					//Right lower limbs
+					//Right upper limbs
 					modelStack.PushMatrix();
 					{
-						//Right paw joint
+						//Right hand - Mid joint
 						modelStack.PushMatrix();
-						modelStack.Translate(3.65f, 0, 0);
+						{
+							//Right lower limbs
+							modelStack.PushMatrix();
+							{
+								//Right paw joint
+								modelStack.PushMatrix();
+								modelStack.Translate(3.65f, 0, 0);
+								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+								meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+								RenderMesh(meshList[GEO_SPHERE], true);
+								modelStack.PopMatrix();
+							}
+							modelStack.Translate(2.55f, 0, 0);
+							modelStack.Scale(0.5f, 0.25f, 0.25f);
+							modelStack.Rotate(-90, 0, 0, 1);
+							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+							meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
+							RenderMesh(meshList[GEO_CYLINDER], true);
+							modelStack.PopMatrix();
+						}
+						modelStack.Translate(2.45f, 0, 0);
 						modelStack.Scale(0.35f, 0.35f, 0.35f);
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -454,7 +489,7 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_SPHERE], true);
 						modelStack.PopMatrix();
 					}
-					modelStack.Translate(2.55f, 0, 0);
+					modelStack.Translate(1.35f, 0, 0);
 					modelStack.Scale(0.5f, 0.25f, 0.25f);
 					modelStack.Rotate(-90, 0, 0, 1);
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -464,7 +499,7 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(2.45f, 0, 0);
+				modelStack.Translate(1.2f, 0, 0);
 				modelStack.Scale(0.35f, 0.35f, 0.35f);
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -473,23 +508,15 @@ void SceneLight::Render()
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-			modelStack.Translate(1.35f, 0, 0);
-			modelStack.Scale(0.5f, 0.25f, 0.25f);
-			modelStack.Rotate(-90, 0, 0, 1);
-			meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
-			meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-			meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
-			RenderMesh(meshList[GEO_CYLINDER], true);
-			modelStack.PopMatrix();
 		}
-		modelStack.Translate(1.2f, 0, 0);
-		modelStack.Scale(0.35f, 0.35f, 0.35f);
-		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+		modelStack.Translate(0, -1.8f, 0);
+		modelStack.Scale(.4f, .4f, .4f);
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.9f, 0.4f);
 		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
 		RenderMesh(meshList[GEO_SPHERE], true);
+
 		modelStack.PopMatrix();
 	}
 

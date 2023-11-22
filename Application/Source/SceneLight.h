@@ -96,6 +96,10 @@ private:
 	// Keep track of current animation
 	ANIMATION currAnim;
 
+	//Head
+	float eyeSize;
+	float speed;
+
 };
 
 #endif
