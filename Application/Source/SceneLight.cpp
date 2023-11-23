@@ -151,15 +151,15 @@ void SceneLight::Update(double dt)
 	switch (currAnim) 
 	{
 	case ANIM_MOON:
-		//moonRotation += static_cast<float>(dt) * 50.f;
+		
 		break;
 
 	case ANIM_EARTH:
-		//earthRotation += static_cast<float>(dt) * 10.f;
+		
 		break;
 
 	case ANIM_SUN:
-		//sunRotation += static_cast<float>(dt) * 10.f;
+		
 		break;
 
 	case ANIM_IDLE:
