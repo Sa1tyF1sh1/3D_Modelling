@@ -94,9 +94,10 @@ private:
 	Light light[1];
 	bool enableLight;
 	// Keep track of current animation
+
 	ANIMATION currAnim;
 
-	//Head
+	//Head regions
 	float headRotation;
 	float eyeSize;
 	float speed;
