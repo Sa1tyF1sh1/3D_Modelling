@@ -87,7 +87,7 @@ private:
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
-	float moonRotation;
+	
 	float earthRotation;
 	float sunRotation;
 
@@ -97,6 +97,7 @@ private:
 	ANIMATION currAnim;
 
 	//Head
+	float headRotation;
 	float eyeSize;
 	float speed;
 
