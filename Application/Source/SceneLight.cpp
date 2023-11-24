@@ -29,6 +29,27 @@ SceneLight::~SceneLight()
 
 }
 
+void SceneLight::setDefaultValue() 
+{
+	headRotateAmt = 0;
+	rightHandTranslateAmt = 0;
+	rightForearmRotAmt = 0;
+	lefthandTranslateAmt = 0;
+	leftlegRotateAmt = 0;
+	rightlegRoteAmt = 0;
+	legRoteAmt = 0;
+	bodyMovementAmt_idle = 0;
+	bodyMovementAmt_ss = 0;
+
+	//Speed
+	rightHandRotateSpeed = 35;
+	rightForearmRotSpeed = 40;
+	headRotateSpeed = 20;
+	legRotSpeed = 60;
+	lefthandRotSpeed = 30;
+	bodyMovementSpeed_idle = 0.5f;
+}
+
 void SceneLight::Init()
 {
 	// Initialise camera properties
@@ -106,11 +127,8 @@ void SceneLight::Init()
 
 	// Init default data on start
 	{
-	headRotation = 1.0f;
-	earthRotation = 1.0f;
-	sunRotation = 1.0f;
+	currAnim = ANIM_IDLE;
 
-	currAnim = ANIM_SUN;
 	enableLight = false;
 
 	light[0].position = glm::vec3(0, 5, 0);
@@ -126,8 +144,36 @@ void SceneLight::Init()
 	glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
 	glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
 
+	//Common
+	jointSize = 0.35f;
 	eyeSize = 0.3f;
-	speed = 75;
+	upperBodySize = 1.25f;
+
+	//Chest
+	
+
+	//Left hand
+	
+	headRotateAmt = 0;
+	rightHandTranslateAmt = 0;
+	rightForearmRotAmt = 0;
+	lefthandTranslateAmt = 0;
+	leftlegRotateAmt = 0;
+	rightlegRoteAmt = 0;
+	legRoteAmt = 0;
+	bodyMovementAmt_idle = 0;
+	bodyMovementAmt_ss = 0;
+
+	//Speed
+	rightHandRotateSpeed = 35;
+	rightForearmRotSpeed = 40;
+	headRotateSpeed = 20;
+	legRotSpeed = 60;
+	lefthandRotSpeed = 30;
+	bodyMovementSpeed_idle = 0.5f;
+	//Left leg
+
+	//Right leg
 	}
 }
 
@@ -137,59 +183,133 @@ void SceneLight::Update(double dt)
 	HandleKeyPress();
 	camera.Update(dt);
 
-	if (headRotation >= 100 || headRotation <= -100)
-	{
-		speed = -speed;
-	}
-	std::cout << "Speed: " << headRotation << '\n';
-	headRotation += static_cast<float>(dt) * speed;
-	/*sunRotation += static_cast<float>(dt) * 10.f;
-	earthRotation += static_cast<float>(dt) * 10.f;
-	moonRotation += static_cast<float>(dt) * 50.f;*/
-
 	//Do animation here
 	switch (currAnim) 
 	{
-	case ANIM_MOON:
-		
-		break;
-
-	case ANIM_EARTH:
-		
-		break;
-
-	case ANIM_SUN:
-		
-		break;
-
+		//Press 'Z'
 	case ANIM_IDLE:
 		//Idle anim
+		lefthandTranslateAmt += static_cast<float>(dt) * lefthandRotSpeed;
+		if (lefthandTranslateAmt >= 30 || lefthandTranslateAmt <= -30)
+		{	
+			lefthandRotSpeed *= -1;
+		}
+		bodyMovementAmt_idle += static_cast<float>(dt) * bodyMovementSpeed_idle;
+		if (bodyMovementAmt_idle >= 0.25f || bodyMovementAmt_idle <= -0)
+		{
+			bodyMovementSpeed_idle *= -1;
+		}
 
 		break;
-
+		//Press 'X'
 	case ANIM_WAVING:
 		//Waving anim
+		//Head tilt to left
+	
+		headRotateAmt += static_cast<float>(dt) * headRotateSpeed;
 
+		if (headRotateAmt >= 20)
+		{
+			headRotateSpeed = 0;
+		}
+		else
+		{
+			headRotateSpeed = 50;
+		}
+		
+		//Waving
+		rightHandTranslateAmt += static_cast<float>(dt) * rightHandRotateSpeed;
+		
+		if (rightHandTranslateAmt >= 40 || rightHandTranslateAmt <= 0)
+		{
+			rightHandRotateSpeed = -rightHandRotateSpeed;
+		}
+		rightForearmRotAmt += static_cast<float>(dt) * rightForearmRotSpeed;
+		if (rightHandTranslateAmt >= 40 || rightHandTranslateAmt <= 0)
+		{
+			rightForearmRotSpeed = -rightForearmRotSpeed;
+		}
+		//Put down the left hand
+		lefthandTranslateAmt -= static_cast<float>(dt) * lefthandRotSpeed;
+		if (lefthandTranslateAmt >= 45)
+		{
+			lefthandRotSpeed = 0;
+		}
+		else
+		{
+			lefthandRotSpeed = -20;
+		}
 		break;
-
+		//Press 'C'
 	case ANIM_SWIMMING:
-		//Swin anim
+		
+		//Head Swing
+		if (headRotateAmt >= 30 || headRotateAmt <= -30)
+		{
+			headRotateSpeed = -headRotateSpeed;
+		}
+		headRotateAmt += static_cast<float>(dt) * headRotateSpeed;
+
+		//Hand movement
+		rightHandTranslateAmt += static_cast<float>(dt) * rightHandRotateSpeed;
+		if (rightHandTranslateAmt >= 55 || rightHandTranslateAmt <= -55)
+		{
+			rightHandRotateSpeed = -rightHandRotateSpeed;
+			if (rightHandTranslateAmt >= 55)
+			{
+				rightHandRotateSpeed *= 3;
+			}
+			else if (rightHandTranslateAmt <= -55)
+			{
+				rightHandRotateSpeed /= 3;
+			}
+		}
+		legRoteAmt += static_cast<float>(dt) * legRotSpeed;
+		if (legRoteAmt >= 50 || legRoteAmt <= -50)
+		{
+			legRotSpeed = -legRotSpeed;
+		}
+
+		//Leg movement
 
 		break;
-
+		//Press 'V'
 	case ANIM_SUMMERSAULT:
 		//Summersault anim
 
 		break;
-
+		//Press 'B'
 	case ANIM_COMBO_ATTACK:
 		//Combo attack anim
 
 		break;
+	case ANIM_DEFAULT:
 
+		//Check for the distance
+		headRotateAmt = 0;
+		rightHandTranslateAmt = 0;
+		rightForearmRotAmt = 0;
+		lefthandTranslateAmt = 0;
+		leftlegRotateAmt = 0;
+		rightlegRoteAmt = 0;
+		legRoteAmt = 0;
+		bodyMovementAmt_idle = 0;
+		bodyMovementAmt_ss = 0;
+		
+		//Speed
+		rightHandRotateSpeed = 35;
+		rightForearmRotSpeed = 40;
+		headRotateSpeed = 20;
+		legRotSpeed = 60;
+		lefthandRotSpeed = 30;
+		bodyMovementSpeed_idle = 0.5f;
+		break;
 	default:
+		
 		break;
 	}
+	
+	std::cout << "Current Anim: " << headRotateAmt << '\n';
 
 	// Controller for movement of light source
 	{
@@ -245,21 +365,23 @@ void SceneLight::Render()
 	//meshList[GEO_SPHERE]->Render();
 	//meshList[GEO_TORUS]->Render();
 
-	// Load view matrix stack and set it with camera position, target position and up direction
-	viewStack.LoadIdentity();
-	viewStack.LookAt(camera.position.x, camera.position.y, camera.position.z,camera.target.x, camera.target.y, camera.target.z,camera.up.x, camera.up.y, camera.up.z );
+	{
+		// Load view matrix stack and set it with camera position, target position and up direction
+		viewStack.LoadIdentity();
+		viewStack.LookAt(camera.position.x, camera.position.y, camera.position.z, camera.target.x, camera.target.y, camera.target.z, camera.up.x, camera.up.y, camera.up.z);
 
-	// Load identity matrix into the model stack
-	modelStack.LoadIdentity();
+		// Load identity matrix into the model stack
+		modelStack.LoadIdentity();
 
-	// Calculate the light position in camera space
-	glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-	glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		// Calculate the light position in camera space
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 
-	modelStack.PushMatrix();
-	// Render objects
-	RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
+		modelStack.PushMatrix();
+		// Render objects
+		RenderMesh(meshList[GEO_AXES], false);
+		modelStack.PopMatrix();
+	}
 	
 	// Render light
 	{
@@ -280,13 +402,28 @@ void SceneLight::Render()
 		modelStack.PushMatrix();
 
 		//Rotation of the whole boday
-		modelStack.Rotate(0, 1, 0, 0);
+		if (currAnim == ANIM_SWIMMING)
+		{
+			modelStack.Rotate(100, 1, 0, 0);
+			
+		}
+		else if (currAnim == ANIM_IDLE)
+		{
+			modelStack.Translate(0, bodyMovementAmt_idle, 0);
+		}
+		
 		{
 			//Render area of head
 			{
 				//Render of neck
 				modelStack.PushMatrix();
-				modelStack.Rotate(headRotation, 0, 1, 0);
+				modelStack.Rotate(headRotateAmt, 0, 0, 1);
+				if (currAnim == ANIM_SWIMMING)
+				{
+					modelStack.Rotate(-45, 1, 0, 0);
+					modelStack.Rotate(headRotateAmt, 0, 1, 0);
+				}
+				
 				//Render of the head
 				{
 					modelStack.PushMatrix();
@@ -294,6 +431,7 @@ void SceneLight::Render()
 					{
 						//Render the of left eye
 						modelStack.PushMatrix();
+
 						{
 							//Eye ball left
 							modelStack.PushMatrix();
@@ -322,6 +460,7 @@ void SceneLight::Render()
 
 						//Render the of right eye
 						modelStack.PushMatrix();
+
 						{
 							//Eye ball right
 							modelStack.PushMatrix();
@@ -347,6 +486,7 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_TORUS], true);
 						modelStack.PopMatrix();
 					}
+
 					modelStack.Translate(0, 2, 0);
 					modelStack.Scale(1.9f, 1.5f, 1.5f);
 
@@ -374,7 +514,7 @@ void SceneLight::Render()
 
 				modelStack.PushMatrix();
 				modelStack.Translate(0, -0.9f, 0);
-				modelStack.Scale(1.25f, 2.65f, 1.25f);
+				modelStack.Scale(upperBodySize, 2.65f, upperBodySize);
 				meshList[GEO_TORUS_01]->material.kAmbient = glm::vec3(0.75f, 0.25f, 0.03f);
 				meshList[GEO_TORUS_01]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
 				meshList[GEO_TORUS_01]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
@@ -384,24 +524,43 @@ void SceneLight::Render()
 
 			}
 
-			//Render of left hand
+			//Render of left arm
 			{
-				//Left shoulder Joints
+				//Left clavicle Joints
 				modelStack.PushMatrix();
+				modelStack.Translate(-1, 0, 0);
+				if (currAnim == ANIM_SWIMMING)
 				{
-					//Left upper limbs
+					modelStack.Rotate(-rightHandTranslateAmt, 0, 0, 1);
+				}
+				else if (currAnim == ANIM_WAVING)
+				{
+					modelStack.Rotate(lefthandTranslateAmt, 0, 0, 1);
+				}
+				else if (currAnim == ANIM_IDLE)
+				{
+					modelStack.Rotate(45, 0, 0, 1);
+					modelStack.Rotate(-lefthandTranslateAmt, 0, 1, 0);
+				}
+
+				{
+					//Left shoulder
 					modelStack.PushMatrix();
+
 					{
-						//Left hand - Mid joint
+						//Left forearm joint
 						modelStack.PushMatrix();
+						modelStack.Translate(-1.3f, 0, 0);
+
 						{
-							//Left lower limbs
+							//Left forearm
 							modelStack.PushMatrix();
+
 							{
-								//Left paw joint
+								//Left hand joint
 								modelStack.PushMatrix();
-								modelStack.Translate(-3.65f, 0, 0);
-								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								modelStack.Translate(-1.25f, 0, 0);
+								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -409,7 +568,8 @@ void SceneLight::Render()
 								RenderMesh(meshList[GEO_SPHERE], true);
 								modelStack.PopMatrix();
 							}
-							modelStack.Translate(-2.55f, 0, 0);
+
+							modelStack.Translate(-.2f, 0, 0);
 							modelStack.Scale(0.5f, 0.25f, 0.25f);
 							modelStack.Rotate(90, 0, 0, 1);
 							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -419,8 +579,9 @@ void SceneLight::Render()
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
 						}
-						modelStack.Translate(-2.45f, 0, 0);
-						modelStack.Scale(0.35f, 0.35f, 0.35f);
+						
+						modelStack.Scale(jointSize, jointSize, jointSize);
+
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -428,9 +589,11 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_SPHERE], true);
 						modelStack.PopMatrix();
 					}
-					modelStack.Translate(-1.35f, 0, 0);
-					modelStack.Scale(0.5f, 0.25f, 0.25f);
+
+					modelStack.Translate(-.2f, 0, 0);
 					modelStack.Rotate(90, 0, 0, 1);
+					modelStack.Scale(0.25f, 0.5f, 0.25f);
+					
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -438,8 +601,9 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(-1.2f, 0, 0);
-				modelStack.Scale(0.35f, 0.35f, 0.35f);
+
+				modelStack.Scale(jointSize, jointSize, jointSize);
+
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -448,24 +612,45 @@ void SceneLight::Render()
 				modelStack.PopMatrix();
 			}
 
-			//Render of right hand
+			//Render of right arm
 			{
-				//Right shoulder Joints
+				//Right clavicle joints ( 1 )
 				modelStack.PushMatrix();
+				modelStack.Translate(1, 0, 0);
+				if (currAnim == ANIM_SWIMMING)
 				{
-					//Right upper limbs
+					modelStack.Rotate(rightHandTranslateAmt, 0, 0, 1);
+				}
+				else if (currAnim == ANIM_WAVING)
+				{
+					modelStack.Rotate(rightHandTranslateAmt, 0, 0, 1);
+				}
+				else if (currAnim == ANIM_IDLE)
+				{
+					modelStack.Rotate(-45, 0, 0, 1);
+					modelStack.Rotate(lefthandTranslateAmt, 0, 1, 0);
+				}
+
+				{
+					//Right shoulder
 					modelStack.PushMatrix();
+
 					{
-						//Right hand - Mid joint
+						//Right forearm joint ( 2 )
 						modelStack.PushMatrix();
+
+						modelStack.Translate(1.3f, 0, 0);
+						modelStack.Rotate(rightForearmRotAmt, 0, 0, 1);
+
 						{
-							//Right lower limbs
+							//Right forearm
 							modelStack.PushMatrix();
+							
 							{
-								//Right paw joint
+								//Right hand joint ( 3 )
 								modelStack.PushMatrix();
-								modelStack.Translate(3.65f, 0, 0);
-								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								modelStack.Translate(1.25f, 0, 0);
+								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -473,18 +658,21 @@ void SceneLight::Render()
 								RenderMesh(meshList[GEO_SPHERE], true);
 								modelStack.PopMatrix();
 							}
-							modelStack.Translate(2.55f, 0, 0);
+
+							modelStack.Translate(.15f, 0, 0);
 							modelStack.Scale(0.5f, 0.25f, 0.25f);
 							modelStack.Rotate(-90, 0, 0, 1);
+							
 							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 							meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 							meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
-						}
-						modelStack.Translate(2.45f, 0, 0);
-						modelStack.Scale(0.35f, 0.35f, 0.35f);
+						}	
+
+						modelStack.Scale(jointSize, jointSize, jointSize);
+
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -492,9 +680,11 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_SPHERE], true);
 						modelStack.PopMatrix();
 					}
-					modelStack.Translate(1.35f, 0, 0);
-					modelStack.Scale(0.5f, 0.25f, 0.25f);
-					modelStack.Rotate(-90, 0, 0, 1);
+
+					modelStack.Translate(1.2f, 0, 0);
+					modelStack.Rotate(90, 0, 0, 1);
+					modelStack.Scale(0.25f, 0.5f, 0.25f);
+
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -502,8 +692,8 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(1.2f, 0, 0);
-				modelStack.Scale(0.35f, 0.35f, 0.35f);
+
+				modelStack.Scale(jointSize, jointSize, jointSize);
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -514,24 +704,32 @@ void SceneLight::Render()
 
 			//Render of left leg
 			{
-				//Left leg Joints
+				//Left hip Joints (1)
 				modelStack.PushMatrix();
+				modelStack.Translate(-1, -2, 0);
+				modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
+				modelStack.Rotate(legRoteAmt, 1, 0, 0);
 				{
 					//Left thigh
 					modelStack.PushMatrix();
+					modelStack.Translate(0, -1.25f, 0);
 					{
-						//Left Knee
+						//Left Knee (2)
 						modelStack.PushMatrix();
+						modelStack.Translate(0, -0.15f, 0);
 						{
 							//Left calf
 							modelStack.PushMatrix();
+							modelStack.Translate(0, -1.25f, 0);
 							{
-								//Left ankle
+								//Left ankle (3)
 								modelStack.PushMatrix();
+								modelStack.Translate(0, -0.25f, 0);
 								{
 									//Left Legs
 									modelStack.PushMatrix();
-									modelStack.Translate(-1.05f, -4.5, 0.1f);
+									modelStack.Translate(0, -0.45f, 0.1f);
+									modelStack.Translate(0, bodyMovementAmt_idle, 0);
 									modelStack.Scale(0.55f, 0.15f, 0.55f);
 									modelStack.Rotate(35, 0, 1, 0);
 									meshList[GEO_CUBE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -541,8 +739,8 @@ void SceneLight::Render()
 									RenderMesh(meshList[GEO_CUBE], true);
 									modelStack.PopMatrix();
 								}
-								modelStack.Translate(-1.f, -4, 0);
-								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								
+								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -550,7 +748,7 @@ void SceneLight::Render()
 								RenderMesh(meshList[GEO_SPHERE], true);
 								modelStack.PopMatrix();
 							}
-							modelStack.Translate(-1.f, -4.15f, 0);
+							
 							modelStack.Scale(0.25f, 0.65f, 0.25f);
 							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -559,8 +757,8 @@ void SceneLight::Render()
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
 						}
-						modelStack.Translate(-1.f, -3, 0);
-						modelStack.Scale(0.35f, 0.35f, 0.35f);
+						
+						modelStack.Scale(jointSize, jointSize, jointSize);
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -569,7 +767,7 @@ void SceneLight::Render()
 						modelStack.PopMatrix();
 
 					}
-					modelStack.Translate(-1.f, -3.15f, 0);
+					
 					modelStack.Scale(0.25f, 0.65f, 0.25f);
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -578,8 +776,8 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(-1.f, -2, 0);
-				modelStack.Scale(0.35f, 0.35f, 0.35f);
+				
+				modelStack.Scale(jointSize, jointSize, jointSize);
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -592,22 +790,30 @@ void SceneLight::Render()
 			{
 				//Right leg Joints
 				modelStack.PushMatrix();
+				modelStack.Translate(1.f, -2, 0);
+				modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
+				modelStack.Rotate(-legRoteAmt, 1, 0, 0);
 				{
 					//Right thigh
 					modelStack.PushMatrix();
+					modelStack.Translate(0, -1.25f, 0);
 					{
 						//Right Knee
 						modelStack.PushMatrix();
+						modelStack.Translate(0, -0.15f, 0);
 						{
 							//Right calf
 							modelStack.PushMatrix();
+							modelStack.Translate(0, -1.25f, 0);
 							{
 								//Right ankle
 								modelStack.PushMatrix();
+								modelStack.Translate(0, -0.25f, 0);
 								{
 									//Right Legs
 									modelStack.PushMatrix();
-									modelStack.Translate(1.05f, -4.5, 0.1f);
+									modelStack.Translate(0, -0.45f, 0.1f);
+									modelStack.Translate(0, bodyMovementAmt_idle, 0);
 									modelStack.Scale(0.55f, 0.15f, 0.55f);
 									modelStack.Rotate(-35, 0, 1, 0);
 									meshList[GEO_CUBE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -617,8 +823,8 @@ void SceneLight::Render()
 									RenderMesh(meshList[GEO_CUBE], true);
 									modelStack.PopMatrix();
 								}
-								modelStack.Translate(1.f, -4, 0);
-								modelStack.Scale(0.35f, 0.35f, 0.35f);
+								
+								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 								meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 								meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -626,7 +832,7 @@ void SceneLight::Render()
 								RenderMesh(meshList[GEO_SPHERE], true);
 								modelStack.PopMatrix();
 							}
-							modelStack.Translate(1.f, -4.15f, 0);
+							
 							modelStack.Scale(0.25f, 0.65f, 0.25f);
 							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -635,8 +841,8 @@ void SceneLight::Render()
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
 						}
-						modelStack.Translate(1.f, -3, 0);
-						modelStack.Scale(0.35f, 0.35f, 0.35f);
+						
+						modelStack.Scale(jointSize, jointSize, jointSize);
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -644,7 +850,7 @@ void SceneLight::Render()
 						RenderMesh(meshList[GEO_SPHERE], true);
 						modelStack.PopMatrix();
 					}
-					modelStack.Translate(1.f, -3.15f, 0);
+					
 					modelStack.Scale(0.25f, 0.65f, 0.25f);
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -653,8 +859,8 @@ void SceneLight::Render()
 					RenderMesh(meshList[GEO_CYLINDER], true);
 					modelStack.PopMatrix();
 				}
-				modelStack.Translate(1.f, -2, 0);
-				modelStack.Scale(0.35f, 0.35f, 0.35f);
+				
+				modelStack.Scale(jointSize, jointSize, jointSize);
 				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -727,35 +933,6 @@ void SceneLight::HandleKeyPress()
 			projType = 0; // Orthographic
 		}	
 	}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed('E'))
-	{
-		// Only animate the earth
-		currAnim = ANIM_EARTH;
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed('M'))
-	{
-		// Only animte the moon
-		currAnim = ANIM_MOON;
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
-	{
-		// Only animate the sun
-		currAnim = ANIM_SUN;
-		
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed('R'))
-	{
-		// Reset everything to original state
-		currAnim = ANIM_SUN;
-		headRotation = 0.0f;
-		earthRotation = 0.0f;
-		sunRotation = 0.0f;
-	}
-
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
 	{
 		// Toggle light on or off
@@ -766,29 +943,40 @@ void SceneLight::HandleKeyPress()
 	//Start idle animation
 	if (KeyboardController::GetInstance()->IsKeyPressed('Z'))
 	{
+		setDefaultValue();
 		currAnim = ANIM_IDLE;
 		std::cout <<"IDLING" << '\n';
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed('X'))
 	{
+		setDefaultValue();
 		currAnim = ANIM_WAVING;
 		std::cout << "Waving !" << '\n';
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed('C'))
 	{
+		setDefaultValue();
 		currAnim = ANIM_SWIMMING;
 		std::cout << "Swimming !" << '\n';
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed('V'))
 	{
+		setDefaultValue();
 		currAnim = ANIM_SUMMERSAULT;
 		std::cout << "Summersaulting !" << '\n';
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed('B'))
 	{
+		setDefaultValue();
 		currAnim = ANIM_COMBO_ATTACK;
 		std::cout << "Combo attacking !" << '\n';
 	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('R'))
+	{
+		currAnim = ANIM_DEFAULT;
+		std::cout << "Default Pos !" << '\n';
+	}
+
 }
 
 void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)

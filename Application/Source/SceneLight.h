@@ -46,10 +46,7 @@ public:
 
 	enum ANIMATION
 	{
-		ANIM_MOON,
-		ANIM_EARTH,
-		ANIM_SUN,
-
+		ANIM_DEFAULT,
 		ANIM_IDLE,
 		ANIM_WAVING,
 		ANIM_SWIMMING,
@@ -59,9 +56,10 @@ public:
 		NUM_ANIM
 	};
 
-
 	SceneLight();
 	~SceneLight();
+
+	void setDefaultValue();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -95,11 +93,46 @@ private:
 	// Keep track of current animation
 
 	ANIMATION currAnim;
+	//Common
+	float jointSize;
 
 	//Head regions
-	float headRotation;
+	float headRotateAmt;
+	float headRotateSpeed;
 	float eyeSize;
-	float speed;
+
+	//Chest
+	float upperBodySize;
+
+	//Left hand
+	float lefthandTranslateAmt;
+	float lefthandRotSpeed;
+
+	//Right hand
+	float rightHandTranslateAmt;
+	float rightForearmRotAmt;
+
+	float rightHandRotateSpeed;
+	float rightForearmRotSpeed;
+
+	//Left leg
+	float leftlegRotateAmt;
+	float leftlegRotSpeed;
+	//Right leg
+	float rightlegRoteAmt;
+	float rightlegRotespeed;
+
+	//Common use var
+	float legRoteAmt;
+	float legRotSpeed;
+
+	float bodyMovementAmt_idle;
+	float bodyMovementSpeed_idle;
+
+	float bodyMovementAmt_ss;
+	float bodyMovementSpeed_ss;
+
+
 
 };
 
