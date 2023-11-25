@@ -40,14 +40,27 @@ void SceneLight::setDefaultValue()
 	legRoteAmt = 0;
 	bodyMovementAmt_idle = 0;
 	bodyMovementAmt_ss = 0;
+	legMovementAmt_ss = 0;
+	handRoteAmt = 0;
+	bodyRotAmt = 0;
+	bodyTransAmt = 0;
 
 	//Speed
+
 	rightHandRotateSpeed = 35;
 	rightForearmRotSpeed = 40;
 	headRotateSpeed = 20;
 	legRotSpeed = 60;
 	lefthandRotSpeed = 30;
 	bodyMovementSpeed_idle = 0.5f;
+	bodyMovementSpeed_ss = 0.5f;
+	legMovementSpeed_ss = 26;
+	handRoteSpeed = 26;
+	bodyRotSpeed = 150;
+	bodyTransSped = 5;
+	bodyRotSpeed_ca = 5;
+	
+	finishAnim_SS = true;
 }
 
 void SceneLight::Init()
@@ -127,7 +140,7 @@ void SceneLight::Init()
 
 	// Init default data on start
 	{
-	currAnim = ANIM_IDLE;
+	currAnim = ANIM_COMBO_ATTACK;
 
 	enableLight = false;
 
@@ -149,9 +162,6 @@ void SceneLight::Init()
 	eyeSize = 0.3f;
 	upperBodySize = 1.25f;
 
-	//Chest
-	
-
 	//Left hand
 	
 	headRotateAmt = 0;
@@ -163,6 +173,10 @@ void SceneLight::Init()
 	legRoteAmt = 0;
 	bodyMovementAmt_idle = 0;
 	bodyMovementAmt_ss = 0;
+	legMovementAmt_ss = 0;
+	handRoteAmt = 0;
+	bodyRotAmt = 0;
+	bodyTransAmt = 0;
 
 	//Speed
 	rightHandRotateSpeed = 35;
@@ -171,8 +185,14 @@ void SceneLight::Init()
 	legRotSpeed = 60;
 	lefthandRotSpeed = 30;
 	bodyMovementSpeed_idle = 0.5f;
+	bodyMovementSpeed_ss = 0.5f;
+	legMovementSpeed_ss = 26;
+	handRoteSpeed = 26;
+	bodyRotSpeed = 150;
+	bodyTransSped = 5;
+	bodyRotSpeed_ca = 20;
 	//Left leg
-
+	finishAnim_SS = true;
 	//Right leg
 	}
 }
@@ -275,34 +295,119 @@ void SceneLight::Update(double dt)
 		break;
 		//Press 'V'
 	case ANIM_SUMMERSAULT:
-		//Summersault anim
+		//Start animation while player not perform the summersault
+		finishAnim_SS = false;
+		if (!finishAnim_SS)
+		{
+			headRotateAmt += static_cast<float>(dt) * headRotateSpeed;
+			bodyMovementAmt_ss += static_cast<float>(dt) * -bodyMovementSpeed_ss;
+			legMovementAmt_ss += static_cast<float>(dt) * legMovementSpeed_ss;
+			handRoteAmt += static_cast<float>(dt) * handRoteSpeed;
+
+			if (headRotateAmt >= 30)
+			{
+				headRotateSpeed *= 0;
+			}
+
+			if (bodyMovementAmt_ss <= -1)
+			{
+				bodyMovementSpeed_ss *= 0;
+
+				bodyTransAmt += static_cast<float>(dt) * bodyTransSped;
+				bodyRotAmt += static_cast<float>(dt) * bodyRotSpeed;
+				if (bodyRotAmt >= 360)
+				{
+					bodyRotSpeed *= 0;
+					bodyTransSped *= 0;
+					finishAnim_SS = true;
+				}
+				
+			}
+
+			if (legMovementAmt_ss >= 55)
+			{
+				legMovementSpeed_ss *= 0;
+			}
+
+			if (handRoteAmt >= 50)
+			{
+				handRoteSpeed *= 0;
+			}
+			
+		}
+		//Start animation to reverse to the orignal pose;
+
+		if(finishAnim_SS)
+		{
+			std::cout << "Reverse Anim" << '\n';
+			//headRotateAmt -= static_cast<float>(dt) * 20;
+			//legMovementAmt_ss -= static_cast<float>(dt) * 26;
+			//handRoteAmt -= static_cast<float>(dt) * 26;
+
+			if (headRotateAmt >= 0)
+			{
+				headRotateAmt -= static_cast<float>(dt) * 20;
+			}
+			else
+			{
+				headRotateAmt -= static_cast<float>(dt) * 0;
+			}
+
+			if (legMovementAmt_ss >= 0)
+			{
+				legMovementAmt_ss -= static_cast<float>(dt) * 26;
+			}
+			else
+			{
+				legMovementAmt_ss -= static_cast<float>(dt) * 0;
+			}
+
+			if (handRoteAmt >= 0)
+			{
+				handRoteAmt -= static_cast<float>(dt) * 26;
+			}
+			else
+			{
+				handRoteAmt -= static_cast<float>(dt) * 0;
+			}
+
+		}
 
 		break;
 		//Press 'B'
 	case ANIM_COMBO_ATTACK:
 		//Combo attack anim
 
+		//Turn the body
+		bodyRotAmt += static_cast<float>(dt) * bodyRotSpeed_ca;
+		if (bodyRotAmt >= 20)
+		{
+			bodyRotSpeed_ca *= 0;
+		}
+
+		handRoteAmt += static_cast<float>(dt) * handRoteSpeed;
+		if (handRoteAmt >= 40)
+		{
+			handRoteAmt = 40;
+		}
+
+		legRoteAmt += static_cast<float>(dt) * legRotSpeed;
+		if (legRoteAmt >= 20)
+		{
+			legRoteAmt = 20;
+		}
+
+
+
+
+
+
+
+
 		break;
 	case ANIM_DEFAULT:
-
-		//Check for the distance
-		headRotateAmt = 0;
-		rightHandTranslateAmt = 0;
-		rightForearmRotAmt = 0;
-		lefthandTranslateAmt = 0;
-		leftlegRotateAmt = 0;
-		rightlegRoteAmt = 0;
-		legRoteAmt = 0;
-		bodyMovementAmt_idle = 0;
-		bodyMovementAmt_ss = 0;
+		setDefaultValue();
 		
-		//Speed
-		rightHandRotateSpeed = 35;
-		rightForearmRotSpeed = 40;
-		headRotateSpeed = 20;
-		legRotSpeed = 60;
-		lefthandRotSpeed = 30;
-		bodyMovementSpeed_idle = 0.5f;
 		break;
 	default:
 		
@@ -411,17 +516,38 @@ void SceneLight::Render()
 		{
 			modelStack.Translate(0, bodyMovementAmt_idle, 0);
 		}
+		else if (currAnim == ANIM_SUMMERSAULT)
+		{
+			modelStack.Translate(0, bodyMovementAmt_ss, bodyTransAmt);
+			modelStack.Rotate(bodyRotAmt, 1, 0, 0);
+		}
+		else if (currAnim == ANIM_COMBO_ATTACK)
+		{
+			modelStack.Rotate(bodyRotAmt, 0, 1, 0);
+		}
+		
 		
 		{
 			//Render area of head
 			{
 				//Render of neck
 				modelStack.PushMatrix();
-				modelStack.Rotate(headRotateAmt, 0, 0, 1);
-				if (currAnim == ANIM_SWIMMING)
+				if (currAnim == ANIM_WAVING)
+				{
+					modelStack.Rotate(headRotateAmt, 0, 0, 1);
+				}
+				else if (currAnim == ANIM_SWIMMING)
 				{
 					modelStack.Rotate(-45, 1, 0, 0);
 					modelStack.Rotate(headRotateAmt, 0, 1, 0);
+				}
+				else if (currAnim == ANIM_SUMMERSAULT)
+				{
+					modelStack.Rotate(headRotateAmt, 1, 0, 0);
+				}
+				else if (currAnim == ANIM_COMBO_ATTACK)
+				{
+					modelStack.Rotate(-bodyRotAmt, 0, 1, 0);
 				}
 				
 				//Render of the head
@@ -542,7 +668,17 @@ void SceneLight::Render()
 					modelStack.Rotate(45, 0, 0, 1);
 					modelStack.Rotate(-lefthandTranslateAmt, 0, 1, 0);
 				}
-
+				else if (currAnim == ANIM_SUMMERSAULT)
+				{
+					modelStack.Rotate(handRoteAmt, 0, 0, 1);
+					modelStack.Rotate(handRoteAmt, 0, 1, 0);
+				}
+				else if (currAnim == ANIM_COMBO_ATTACK)
+				{
+					modelStack.Rotate(bodyRotAmt * 2, 0, 0, 1);
+				}
+				
+				
 				{
 					//Left shoulder
 					modelStack.PushMatrix();
@@ -551,6 +687,11 @@ void SceneLight::Render()
 						//Left forearm joint
 						modelStack.PushMatrix();
 						modelStack.Translate(-1.3f, 0, 0);
+						if (currAnim == ANIM_COMBO_ATTACK)
+						{
+
+							modelStack.Rotate(handRoteAmt * 3.5f, 0, 1, 0);
+						}
 
 						{
 							//Left forearm
@@ -630,6 +771,17 @@ void SceneLight::Render()
 					modelStack.Rotate(-45, 0, 0, 1);
 					modelStack.Rotate(lefthandTranslateAmt, 0, 1, 0);
 				}
+				else if (currAnim == ANIM_SUMMERSAULT)
+				{
+					modelStack.Rotate(-handRoteAmt, 0, 0, 1);
+					modelStack.Rotate(-handRoteAmt, 0, 1, 0);
+				}
+				else if (currAnim == ANIM_COMBO_ATTACK)
+				{
+					modelStack.Rotate(-bodyRotAmt * 2, 0, 0, 1);
+				}
+				
+
 
 				{
 					//Right shoulder
@@ -641,6 +793,11 @@ void SceneLight::Render()
 
 						modelStack.Translate(1.3f, 0, 0);
 						modelStack.Rotate(rightForearmRotAmt, 0, 0, 1);
+						if (currAnim == ANIM_COMBO_ATTACK)
+						{
+
+							modelStack.Rotate(-handRoteAmt * 3.5f, 0, 1, 0);
+						}
 
 						{
 							//Right forearm
@@ -707,8 +864,22 @@ void SceneLight::Render()
 				//Left hip Joints (1)
 				modelStack.PushMatrix();
 				modelStack.Translate(-1, -2, 0);
-				modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
-				modelStack.Rotate(legRoteAmt, 1, 0, 0);
+				if (currAnim == ANIM_IDLE)
+				{
+					modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
+				}
+				else if (currAnim == ANIM_SUMMERSAULT)
+				{
+					modelStack.Rotate(-legMovementAmt_ss, 1, 0, 0);
+				}
+				else if (currAnim == ANIM_SWIMMING)
+				{
+					modelStack.Rotate(legRoteAmt, 1, 0, 0);
+				}
+				else if (currAnim == ANIM_COMBO_ATTACK)
+				{
+					modelStack.Rotate(-legRoteAmt, 1, 0, 1);
+				}
 				{
 					//Left thigh
 					modelStack.PushMatrix();
@@ -717,14 +888,27 @@ void SceneLight::Render()
 						//Left Knee (2)
 						modelStack.PushMatrix();
 						modelStack.Translate(0, -0.15f, 0);
+						if (currAnim == ANIM_SUMMERSAULT)
+						{
+							modelStack.Rotate(legMovementAmt_ss * 2, 1, 0, 0);
+						}
+						else if (currAnim == ANIM_COMBO_ATTACK)
+						{
+							modelStack.Rotate(legRoteAmt, 1, 0, 1);
+						}
 						{
 							//Left calf
 							modelStack.PushMatrix();
 							modelStack.Translate(0, -1.25f, 0);
+
 							{
 								//Left ankle (3)
 								modelStack.PushMatrix();
 								modelStack.Translate(0, -0.25f, 0);
+								if (currAnim == ANIM_SUMMERSAULT)
+								{
+									modelStack.Rotate(-legMovementAmt_ss / 1.5f, 1, 0, 0);
+								}
 								{
 									//Left Legs
 									modelStack.PushMatrix();
@@ -790,9 +974,24 @@ void SceneLight::Render()
 			{
 				//Right leg Joints
 				modelStack.PushMatrix();
-				modelStack.Translate(1.f, -2, 0);
-				modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
-				modelStack.Rotate(-legRoteAmt, 1, 0, 0);
+				modelStack.Translate(1.f, -2, 0);	
+				if (currAnim == ANIM_IDLE)
+				{
+					modelStack.Translate(0, -bodyMovementAmt_idle * 0.5f, 0);
+				}
+				else if (currAnim == ANIM_SUMMERSAULT)
+				{
+					modelStack.Rotate(-legMovementAmt_ss, 1, 0, 0);
+				}
+				else if (currAnim == ANIM_SWIMMING)
+				{
+					modelStack.Rotate(-legRoteAmt, 1, 0, 0);
+				}
+				else if (currAnim == ANIM_COMBO_ATTACK)
+				{
+					modelStack.Rotate(legRoteAmt, 1, 0, 1);
+				}
+
 				{
 					//Right thigh
 					modelStack.PushMatrix();
@@ -801,6 +1000,11 @@ void SceneLight::Render()
 						//Right Knee
 						modelStack.PushMatrix();
 						modelStack.Translate(0, -0.15f, 0);
+						if (currAnim == ANIM_SUMMERSAULT)
+						{
+							modelStack.Rotate(legMovementAmt_ss * 2, 1, 0, 0);
+						}
+				
 						{
 							//Right calf
 							modelStack.PushMatrix();
@@ -809,6 +1013,10 @@ void SceneLight::Render()
 								//Right ankle
 								modelStack.PushMatrix();
 								modelStack.Translate(0, -0.25f, 0);
+								if (currAnim == ANIM_SUMMERSAULT)
+								{
+									modelStack.Rotate(-legMovementAmt_ss/1.5f, 1, 0, 0);
+								}
 								{
 									//Right Legs
 									modelStack.PushMatrix();

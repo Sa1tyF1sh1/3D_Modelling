@@ -132,8 +132,20 @@ private:
 	float bodyMovementAmt_ss;
 	float bodyMovementSpeed_ss;
 
+	float legMovementAmt_ss;
+	float legMovementSpeed_ss;
 
+	float handRoteAmt;
+	float handRoteSpeed;
 
+	float bodyRotAmt;
+	float bodyRotSpeed;
+	float bodyRotSpeed_ca;
+
+	float bodyTransAmt;
+	float bodyTransSped;
+
+	bool finishAnim_SS;
 };
 
 #endif
