@@ -31,6 +31,12 @@ SceneLight::~SceneLight()
 
 void SceneLight::setDefaultValue() 
 {
+	//Common
+	jointSize = 0.35f;
+	eyeSize = 0.3f;
+	upperBodySize = 1.25f;
+
+	//Values
 	headRotateAmt = 0;
 	rightHandTranslateAmt = 0;
 	rightForearmRotAmt = 0;
@@ -44,9 +50,9 @@ void SceneLight::setDefaultValue()
 	handRoteAmt = 0;
 	bodyRotAmt = 0;
 	bodyTransAmt = 0;
+	punchCounter = 0;
 
-	//Speed
-
+	//Speeds
 	rightHandRotateSpeed = 35;
 	rightForearmRotSpeed = 40;
 	headRotateSpeed = 20;
@@ -58,9 +64,15 @@ void SceneLight::setDefaultValue()
 	handRoteSpeed = 26;
 	bodyRotSpeed = 150;
 	bodyTransSped = 5;
-	bodyRotSpeed_ca = 5;
-	
+	bodyRotSpeed_ca = 20;
+	rightHandTranslateSpeed = 40;
+	leftHandTranslateSpeed = 40;
+
+	//Conditions
 	finishAnim_SS = true;
+	rightHandAnim = true;
+	leftHandAnim = false;
+	kickAnim = false;
 }
 
 void SceneLight::Init()
@@ -124,7 +136,6 @@ void SceneLight::Init()
 
 	//Generate the basic mnesh
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
-
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1,1,1), 1);
 
 	//1.
@@ -140,7 +151,7 @@ void SceneLight::Init()
 
 	// Init default data on start
 	{
-	currAnim = ANIM_COMBO_ATTACK;
+	currAnim = ANIM_DEFAULT;
 
 	enableLight = false;
 
@@ -161,9 +172,8 @@ void SceneLight::Init()
 	jointSize = 0.35f;
 	eyeSize = 0.3f;
 	upperBodySize = 1.25f;
-
-	//Left hand
 	
+	//Values
 	headRotateAmt = 0;
 	rightHandTranslateAmt = 0;
 	rightForearmRotAmt = 0;
@@ -177,8 +187,9 @@ void SceneLight::Init()
 	handRoteAmt = 0;
 	bodyRotAmt = 0;
 	bodyTransAmt = 0;
+	punchCounter = 0;
 
-	//Speed
+	//Speeds
 	rightHandRotateSpeed = 35;
 	rightForearmRotSpeed = 40;
 	headRotateSpeed = 20;
@@ -191,9 +202,14 @@ void SceneLight::Init()
 	bodyRotSpeed = 150;
 	bodyTransSped = 5;
 	bodyRotSpeed_ca = 20;
-	//Left leg
+	rightHandTranslateSpeed = 40;
+	leftHandTranslateSpeed = 40;
+
+	//Conditions
 	finishAnim_SS = true;
-	//Right leg
+	rightHandAnim = true;
+	leftHandAnim = false;
+	kickAnim = false;
 	}
 }
 
@@ -377,18 +393,57 @@ void SceneLight::Update(double dt)
 		//Press 'B'
 	case ANIM_COMBO_ATTACK:
 		//Combo attack anim
-
-		//Turn the body
+		//Raise the hand
 		bodyRotAmt += static_cast<float>(dt) * bodyRotSpeed_ca;
 		if (bodyRotAmt >= 20)
 		{
 			bodyRotSpeed_ca *= 0;
 		}
-
+		//Punch
 		handRoteAmt += static_cast<float>(dt) * handRoteSpeed;
 		if (handRoteAmt >= 40)
 		{
 			handRoteAmt = 40;
+			//leftHandAnim = true;
+			if (leftHandAnim)
+			{
+				//rightHandTranslateAmt = 0;
+				lefthandTranslateAmt += static_cast<float>(dt) * leftHandTranslateSpeed;
+				if (lefthandTranslateAmt >= 20 || lefthandTranslateAmt <= 0)
+				{
+					leftHandTranslateSpeed = -leftHandTranslateSpeed;
+
+					if (lefthandTranslateAmt <= 0)
+					{
+						punchCounter++;
+						rightHandAnim = true;
+						leftHandAnim = false;
+					}
+				}
+			}
+			if (rightHandAnim)
+			{
+				//lefthandTranslateAmt = 0;
+				rightHandTranslateAmt += static_cast<float>(dt) * rightHandTranslateSpeed;
+				if (rightHandTranslateAmt >= 20 || rightHandTranslateAmt <= 0)
+				{
+					rightHandTranslateSpeed = -rightHandTranslateSpeed;
+					if (rightHandTranslateAmt <= 0)
+					{
+						punchCounter++;
+						leftHandAnim = true;
+						rightHandAnim = false;
+
+					}
+				}
+			}
+		}
+		//Check the lap of punch
+		if (punchCounter >= 2)
+		{
+			leftHandAnim = false;
+			rightHandAnim = false;
+			kickAnim = true;
 		}
 
 		legRoteAmt += static_cast<float>(dt) * legRotSpeed;
@@ -396,13 +451,38 @@ void SceneLight::Update(double dt)
 		{
 			legRoteAmt = 20;
 		}
+		//Rasie the leg
+		if (kickAnim)
+		{
+			legMovementAmt_ss += static_cast<float>(dt) * (legMovementSpeed_ss * 2 );
+			if (legMovementAmt_ss >= 30 || legMovementAmt_ss <= 0)
+			{
+				//legMovementAmt_ss = 30;
+				if (legMovementAmt_ss <= 0)
+				{
+					legMovementSpeed_ss = 0;
+				}
+				legMovementSpeed_ss = -legMovementSpeed_ss;	
+			}
 
+			bodyTransAmt += static_cast<float>(dt) * (bodyTransSped * 3.1f);
+			if (bodyTransAmt >= 10 || bodyTransAmt <= 0)
+			{
+				bodyTransSped = -bodyTransSped;
+				if (bodyTransAmt <= 0)
+				{
+					bodyTransSped = 0;
+				}
+			}
+			kickAnim = false;
+		}
+		
 
+		//Kick anima
 
-
-
-
-
+		//End
+		
+		
 
 		break;
 	case ANIM_DEFAULT:
@@ -414,7 +494,8 @@ void SceneLight::Update(double dt)
 		break;
 	}
 	
-	std::cout << "Current Anim: " << headRotateAmt << '\n';
+	std::cout << "Current Anim: " << legMovementAmt_ss << '\n';
+	//std::cout << "Numb of Lap: " << tempCounter << '\n';
 
 	// Controller for movement of light source
 	{
@@ -524,6 +605,8 @@ void SceneLight::Render()
 		else if (currAnim == ANIM_COMBO_ATTACK)
 		{
 			modelStack.Rotate(bodyRotAmt, 0, 1, 0);
+			modelStack.Rotate(bodyTransAmt * 3, 0, 0, 1);
+			
 		}
 		
 		
@@ -676,9 +759,10 @@ void SceneLight::Render()
 				else if (currAnim == ANIM_COMBO_ATTACK)
 				{
 					modelStack.Rotate(bodyRotAmt * 2, 0, 0, 1);
+					modelStack.Rotate(lefthandTranslateAmt * 5, 0, 1, 0);
 				}
-				
-				
+
+
 				{
 					//Left shoulder
 					modelStack.PushMatrix();
@@ -691,6 +775,7 @@ void SceneLight::Render()
 						{
 
 							modelStack.Rotate(handRoteAmt * 3.5f, 0, 1, 0);
+							modelStack.Rotate(-lefthandTranslateAmt * 7, 0, 1, 0);
 						}
 
 						{
@@ -720,7 +805,7 @@ void SceneLight::Render()
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
 						}
-						
+
 						modelStack.Scale(jointSize, jointSize, jointSize);
 
 						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -734,7 +819,7 @@ void SceneLight::Render()
 					modelStack.Translate(-.2f, 0, 0);
 					modelStack.Rotate(90, 0, 0, 1);
 					modelStack.Scale(0.25f, 0.5f, 0.25f);
-					
+
 					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -779,9 +864,8 @@ void SceneLight::Render()
 				else if (currAnim == ANIM_COMBO_ATTACK)
 				{
 					modelStack.Rotate(-bodyRotAmt * 2, 0, 0, 1);
+					modelStack.Rotate(-rightHandTranslateAmt * 5, 0, 1, 0);
 				}
-				
-
 
 				{
 					//Right shoulder
@@ -792,17 +876,22 @@ void SceneLight::Render()
 						modelStack.PushMatrix();
 
 						modelStack.Translate(1.3f, 0, 0);
-						modelStack.Rotate(rightForearmRotAmt, 0, 0, 1);
+						if (currAnim == ANIM_WAVING)
+						{
+							modelStack.Rotate(rightForearmRotAmt, 0, 0, 1);
+						}
+
 						if (currAnim == ANIM_COMBO_ATTACK)
 						{
 
 							modelStack.Rotate(-handRoteAmt * 3.5f, 0, 1, 0);
+							modelStack.Rotate(rightHandTranslateAmt * 7, 0, 1, 0);
 						}
 
 						{
 							//Right forearm
 							modelStack.PushMatrix();
-							
+
 							{
 								//Right hand joint ( 3 )
 								modelStack.PushMatrix();
@@ -819,14 +908,14 @@ void SceneLight::Render()
 							modelStack.Translate(.15f, 0, 0);
 							modelStack.Scale(0.5f, 0.25f, 0.25f);
 							modelStack.Rotate(-90, 0, 0, 1);
-							
+
 							meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(1, 0.2f, 0);
 							meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 							meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 							meshList[GEO_CYLINDER]->material.kShininess = 1.0f;
 							RenderMesh(meshList[GEO_CYLINDER], true);
 							modelStack.PopMatrix();
-						}	
+						}
 
 						modelStack.Scale(jointSize, jointSize, jointSize);
 
@@ -858,7 +947,7 @@ void SceneLight::Render()
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-
+				
 			//Render of left leg
 			{
 				//Left hip Joints (1)
@@ -879,6 +968,8 @@ void SceneLight::Render()
 				else if (currAnim == ANIM_COMBO_ATTACK)
 				{
 					modelStack.Rotate(-legRoteAmt, 1, 0, 1);
+					modelStack.Rotate(-bodyTransAmt * 3, 0, 0, 1);
+					
 				}
 				{
 					//Left thigh
@@ -990,6 +1081,7 @@ void SceneLight::Render()
 				else if (currAnim == ANIM_COMBO_ATTACK)
 				{
 					modelStack.Rotate(legRoteAmt, 1, 0, 1);
+					modelStack.Rotate(-legMovementAmt_ss * 5, 1, 0, 0);
 				}
 
 				{
@@ -1003,6 +1095,10 @@ void SceneLight::Render()
 						if (currAnim == ANIM_SUMMERSAULT)
 						{
 							modelStack.Rotate(legMovementAmt_ss * 2, 1, 0, 0);
+						}
+						else if (currAnim == ANIM_COMBO_ATTACK)
+						{
+							modelStack.Rotate(legMovementAmt_ss * 5, 1, 0, 0);
 						}
 				
 						{

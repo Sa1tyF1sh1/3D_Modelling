@@ -106,10 +106,14 @@ private:
 
 	//Left hand
 	float lefthandTranslateAmt;
+	float leftHandTranslateSpeed;
+
 	float lefthandRotSpeed;
 
 	//Right hand
 	float rightHandTranslateAmt;
+	float rightHandTranslateSpeed;
+
 	float rightForearmRotAmt;
 
 	float rightHandRotateSpeed;
@@ -146,6 +150,14 @@ private:
 	float bodyTransSped;
 
 	bool finishAnim_SS;
+
+	bool rightHandAnim;
+	bool leftHandAnim;
+	bool kickAnim;
+
+	int punchCounter;
+
+
 };
 
 #endif
