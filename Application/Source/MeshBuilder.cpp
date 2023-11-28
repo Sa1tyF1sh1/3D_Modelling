@@ -147,6 +147,8 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 
 	float anglePerSlice = glm::two_pi<float>() / numSlice;
 
+	float phi = numSlice * anglePerSlice;
+
 	v.pos = glm::vec3(0, 0, 0);
 	vertex_buffer_data.push_back(v);
 
@@ -156,6 +158,7 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 		float theta = i * anglePerSlice;
 		v.pos = glm::vec3(btmRadius * glm::cos(theta), 0, btmRadius * glm::sin(theta));
 
+		v.normal = glm::vec3(glm::cos(phi) * glm::cos(theta), glm::sin(phi), glm::cos(phi) * glm::sin(theta));
 		
 		vertex_buffer_data.push_back(v);
 	}
@@ -168,6 +171,8 @@ Mesh* MeshBuilder::GenerateCylinder(const std::string& meshName, glm::vec3 color
 		float theta = y * anglePerSlice;
 
 		v.pos = glm::vec3(topRadius * glm::cos(theta), height, topRadius * glm::sin(theta));
+
+		v.normal = glm::vec3(glm::cos(phi) * glm::cos(theta), glm::sin(phi), glm::cos(phi) * glm::sin(theta));
 
 		vertex_buffer_data.push_back(v);
 	}
@@ -289,6 +294,7 @@ Mesh* MeshBuilder::GenerateTorus(const std::string& meshName, glm::vec3 color, f
 		{
 			float theta = slice * degreePerSlice;
 			v.pos = glm::vec3((outerR + innerR * glm::cos(theta)) * glm::sin(phi), innerR* glm::sin(theta), (outerR + innerR * glm::cos(theta))* glm::cos(phi));
+			v.normal = glm::vec3(glm::cos(phi) * glm::cos(theta), glm::sin(phi), glm::cos(phi) * glm::sin(theta));
 			vertex_buffer_data.push_back(v);
 		}
 	}

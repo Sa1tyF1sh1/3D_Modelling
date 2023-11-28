@@ -392,8 +392,6 @@ void SceneLight::Update(double dt)
 		break;
 		//Press 'B'
 	case ANIM_COMBO_ATTACK:
-		//Combo attack anim
-		//Raise the hand
 		bodyRotAmt += static_cast<float>(dt) * bodyRotSpeed_ca;
 		if (bodyRotAmt >= 20)
 		{
@@ -475,14 +473,9 @@ void SceneLight::Update(double dt)
 				}
 			}
 			kickAnim = false;
-		}
-		
-
-		//Kick anima
+		}	
 
 		//End
-		
-		
 
 		break;
 	case ANIM_DEFAULT:
@@ -493,9 +486,6 @@ void SceneLight::Update(double dt)
 		
 		break;
 	}
-	
-	std::cout << "Current Anim: " << legMovementAmt_ss << '\n';
-	//std::cout << "Numb of Lap: " << tempCounter << '\n';
 
 	// Controller for movement of light source
 	{
@@ -519,38 +509,6 @@ void SceneLight::Render()
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//// Setup Model View Projection matrix
-	/*glm::mat4 model = glm::mat4(1.f);
-	glm::mat4 view = glm::lookAt(camera.position, camera.target, camera.up);
-	glm::mat4 projection = glm::perspective(glm::radians(60.f), 4.f / 3.f, 0.1f, 10000.f);*/
-
-	//// Define the projection matrix
-	//switch (projType)
-	//{
-	//case 0: // ORTHOGRAPHICS
-	//	// Add codes here to setup orthographic matrix
-	//	projection = glm::ortho(-40.f, 40.f, -60.f, 60.f, 0.1f, 1000.f);
-	//	break;
-	//default: // PERSPECTIVE
-	//	// Add codes here to setup perspective matrix
-	//	projection = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 0.1f, 10000.f);
-	//}
-
-	// Calculate the Model-View-Project matrix
-	/*glm::mat4 MVP = projection * view * model;
-	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));*/
-
-	// Calculate the Model-View-Projection matrix
-	//glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-	//glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
-
-	//// Render objects
-	//meshList[GEO_AXES]->Render();
-	//meshList[GEO_QUAD]->Render();
-	//meshList[GEO_CIRCLE]->Render();
-	//meshList[GEO_SPHERE]->Render();
-	//meshList[GEO_TORUS]->Render();
-
 	{
 		// Load view matrix stack and set it with camera position, target position and up direction
 		viewStack.LoadIdentity();
@@ -560,7 +518,7 @@ void SceneLight::Render()
 		modelStack.LoadIdentity();
 
 		// Calculate the light position in camera space
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 0);
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 
 		modelStack.PushMatrix();
@@ -577,7 +535,7 @@ void SceneLight::Render()
 		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 3.0f;
+		meshList[GEO_SPHERE]->material.kShininess = 1.0f;
 		RenderMesh(meshList[GEO_SPHERE], enableLight);
 		modelStack.PopMatrix();
 	}
@@ -608,8 +566,7 @@ void SceneLight::Render()
 			modelStack.Rotate(bodyTransAmt * 3, 0, 0, 1);
 			
 		}
-		
-		
+			
 		{
 			//Render area of head
 			{
@@ -727,7 +684,7 @@ void SceneLight::Render()
 				meshList[GEO_TORUS_01]->material.kAmbient = glm::vec3(0.75f, 0.25f, 0.03f);
 				meshList[GEO_TORUS_01]->material.kDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
 				meshList[GEO_TORUS_01]->material.kSpecular = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[GEO_TORUS_01]->material.kShininess = 1.0f;
+				meshList[GEO_TORUS_01]->material.kShininess = 5.0f;
 				RenderMesh(meshList[GEO_TORUS_01], true);
 				modelStack.PopMatrix();
 
