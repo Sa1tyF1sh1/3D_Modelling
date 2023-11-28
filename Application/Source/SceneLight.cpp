@@ -176,7 +176,7 @@ void SceneLight::Init()
 	//Values
 	headRotateAmt = 0;
 	rightHandTranslateAmt = 0;
-	rightForearmRotAmt = 0;
+	//rightForearmRotAmt = 0;
 	lefthandTranslateAmt = 0;
 	leftlegRotateAmt = 0;
 	rightlegRoteAmt = 0;
@@ -259,14 +259,19 @@ void SceneLight::Update(double dt)
 		if (rightHandTranslateAmt >= 40 || rightHandTranslateAmt <= 0)
 		{
 			rightHandRotateSpeed = -rightHandRotateSpeed;
+
 		}
+
 		rightForearmRotAmt += static_cast<float>(dt) * rightForearmRotSpeed;
+
 		if (rightHandTranslateAmt >= 40 || rightHandTranslateAmt <= 0)
 		{
 			rightForearmRotSpeed = -rightForearmRotSpeed;
 		}
+
 		//Put down the left hand
 		lefthandTranslateAmt -= static_cast<float>(dt) * lefthandRotSpeed;
+
 		if (lefthandTranslateAmt >= 45)
 		{
 			lefthandRotSpeed = 0;
@@ -392,6 +397,7 @@ void SceneLight::Update(double dt)
 		break;
 		//Press 'B'
 	case ANIM_COMBO_ATTACK:
+
 		bodyRotAmt += static_cast<float>(dt) * bodyRotSpeed_ca;
 		if (bodyRotAmt >= 20)
 		{
@@ -406,7 +412,7 @@ void SceneLight::Update(double dt)
 			if (leftHandAnim)
 			{
 				//rightHandTranslateAmt = 0;
-				lefthandTranslateAmt += static_cast<float>(dt) * leftHandTranslateSpeed;
+				lefthandTranslateAmt += static_cast<float>(dt) * (leftHandTranslateSpeed * 4);
 				if (lefthandTranslateAmt >= 20 || lefthandTranslateAmt <= 0)
 				{
 					leftHandTranslateSpeed = -leftHandTranslateSpeed;
@@ -422,7 +428,7 @@ void SceneLight::Update(double dt)
 			if (rightHandAnim)
 			{
 				//lefthandTranslateAmt = 0;
-				rightHandTranslateAmt += static_cast<float>(dt) * rightHandTranslateSpeed;
+				rightHandTranslateAmt += static_cast<float>(dt) * (rightHandTranslateSpeed * 4);
 				if (rightHandTranslateAmt >= 20 || rightHandTranslateAmt <= 0)
 				{
 					rightHandTranslateSpeed = -rightHandTranslateSpeed;
@@ -431,13 +437,12 @@ void SceneLight::Update(double dt)
 						punchCounter++;
 						leftHandAnim = true;
 						rightHandAnim = false;
-
 					}
 				}
 			}
 		}
 		//Check the lap of punch
-		if (punchCounter >= 2)
+		if (punchCounter >= 10)
 		{
 			leftHandAnim = false;
 			rightHandAnim = false;
@@ -502,6 +507,8 @@ void SceneLight::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	}
+
+	std::cout << "Test: " << rightForearmRotAmt << '\n';
 }
 
 void SceneLight::Render()
@@ -742,6 +749,41 @@ void SceneLight::Render()
 							{
 								//Left hand joint
 								modelStack.PushMatrix();
+								{
+									//Finger 01
+									modelStack.PushMatrix();
+									modelStack.Translate(-1.5f, 0.25f, 0);
+									modelStack.Scale(jointSize / 3, jointSize / 3, jointSize / 3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+									//Finger 02
+									modelStack.PushMatrix();
+									modelStack.Translate(-1.65f, 0, 0);
+									modelStack.Scale(jointSize / 3, jointSize / 3, jointSize / 3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+									//Finger 03
+									modelStack.PushMatrix();
+									modelStack.Translate(-1.5f, -0.2f, 0);
+									modelStack.Scale(jointSize / 3, jointSize / 3, jointSize / 3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+								}
 								modelStack.Translate(-1.25f, 0, 0);
 								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
@@ -852,6 +894,43 @@ void SceneLight::Render()
 							{
 								//Right hand joint ( 3 )
 								modelStack.PushMatrix();
+
+								{
+									//Finger 01
+									modelStack.PushMatrix();
+									modelStack.Translate(1.5f, 0.25f, 0);
+									modelStack.Scale(jointSize/3, jointSize/3, jointSize/3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+									//Finger 02
+									modelStack.PushMatrix();
+									modelStack.Translate(1.65f, 0, 0);
+									modelStack.Scale(jointSize / 3, jointSize / 3, jointSize / 3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+									//Finger 03
+									modelStack.PushMatrix();
+									modelStack.Translate(1.5f, -0.2f, 0);
+									modelStack.Scale(jointSize / 3, jointSize / 3, jointSize / 3);
+									meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
+									meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+									meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+									meshList[GEO_SPHERE]->material.kShininess = 1.0f;
+									RenderMesh(meshList[GEO_SPHERE], true);
+									modelStack.PopMatrix();
+
+								}
+
 								modelStack.Translate(1.25f, 0, 0);
 								modelStack.Scale(jointSize, jointSize, jointSize);
 								meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1, 0.2f, 0);
