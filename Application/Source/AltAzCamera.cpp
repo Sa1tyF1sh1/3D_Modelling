@@ -28,7 +28,7 @@ void AltAzCamera::Reset()
 
 void AltAzCamera::Update(double dt)
 {
-	static const float ROTATE_SPEED = 100.0f;
+	static const float ROTATE_SPEED = 120.0f;
 	static const float ZOOM_SPEED = 10.0f;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT)) {

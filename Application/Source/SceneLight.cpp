@@ -317,6 +317,7 @@ void SceneLight::Update(double dt)
 		//Press 'V'
 	case ANIM_SUMMERSAULT:
 		//Start animation while player not perform the summersault
+
 		finishAnim_SS = false;
 		if (!finishAnim_SS)
 		{
@@ -324,7 +325,8 @@ void SceneLight::Update(double dt)
 			bodyMovementAmt_ss += static_cast<float>(dt) * -bodyMovementSpeed_ss;
 			legMovementAmt_ss += static_cast<float>(dt) * legMovementSpeed_ss;
 			handRoteAmt += static_cast<float>(dt) * handRoteSpeed;
-
+			
+			
 			if (headRotateAmt >= 30)
 			{
 				headRotateSpeed *= 0;
@@ -332,6 +334,7 @@ void SceneLight::Update(double dt)
 
 			if (bodyMovementAmt_ss <= -1)
 			{
+				
 				bodyMovementSpeed_ss *= 0;
 
 				bodyTransAmt += static_cast<float>(dt) * bodyTransSped;
@@ -361,6 +364,7 @@ void SceneLight::Update(double dt)
 		if(finishAnim_SS)
 		{
 			std::cout << "Reverse Anim" << '\n';
+			
 			//headRotateAmt -= static_cast<float>(dt) * 20;
 			//legMovementAmt_ss -= static_cast<float>(dt) * 26;
 			//handRoteAmt -= static_cast<float>(dt) * 26;
@@ -393,7 +397,6 @@ void SceneLight::Update(double dt)
 			}
 
 		}
-
 		break;
 		//Press 'B'
 	case ANIM_COMBO_ATTACK:
@@ -507,8 +510,6 @@ void SceneLight::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	}
-
-	std::cout << "Test: " << rightForearmRotAmt << '\n';
 }
 
 void SceneLight::Render()
@@ -1316,7 +1317,6 @@ void SceneLight::HandleKeyPress()
 		currAnim = ANIM_DEFAULT;
 		std::cout << "Default Pos !" << '\n';
 	}
-
 }
 
 void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)
