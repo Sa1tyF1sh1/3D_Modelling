@@ -12,7 +12,7 @@
 class Mesh
 {
 public:
-	Material material;
+	
 
 	enum DRAW_MODE
 	{
@@ -30,6 +30,9 @@ public:
 	unsigned vertexBuffer;
 	unsigned indexBuffer;
 	unsigned indexSize;
+
+	Material material;
+	unsigned textureID;
 };
 
 #endif

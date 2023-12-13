@@ -95,31 +95,16 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	v.color = color;
 
 	// Add the vertices here
-	v.pos = glm::vec3(0.5f * length, -0.5f * length, -0.5f);  vertex_buffer_data.push_back(v); //V0
-	v.pos = glm::vec3(0.5f * length, 0.5f * length, -0.5f);   vertex_buffer_data.push_back(v); //V1
-	v.pos = glm::vec3(-0.5f * length, 0.5f * length, -0.5f);  vertex_buffer_data.push_back(v); //V2
-	v.pos = glm::vec3(-0.5f * length, -0.5f * length, -0.5f); vertex_buffer_data.push_back(v); //V3
+	v.pos = glm::vec3(-0.5f * length, 0.5f * length, 0.f);	v.normal = glm::vec3(0, 0, 1); v.texCoord = glm::vec2(0, 1);  vertex_buffer_data.push_back(v); 
+	v.pos = glm::vec3(-0.5f * length, -0.5f * length, 0.f);	v.normal = glm::vec3(0, 0, 1); v.texCoord = glm::vec2(0, 0); vertex_buffer_data.push_back(v); //v2
+	v.pos = glm::vec3(0.5f * length, 0.5f * length, 0.f);	v.normal = glm::vec3(0, 0, 1);  v.texCoord = glm::vec2(1, 1); vertex_buffer_data.push_back(v); //v3
+	v.pos = glm::vec3(0.5f * length, -0.5f * length, 0.f);	v.normal = glm::vec3(0, 0, 1);  v.texCoord = glm::vec2(1, 0); vertex_buffer_data.push_back(v); //v4
 
-	v.pos = glm::vec3(0.5f * length, -0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v); //V4
-	v.pos = glm::vec3(0.5f * length, 0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v);	//V5
-	v.pos = glm::vec3(-0.5f * length, 0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v);	//V6
-	v.pos = glm::vec3(-0.5f * length, -0.5f * length, 0.5f * length);  vertex_buffer_data.push_back(v); //V7
-
+	//tri1
 	index_buffer_data.push_back(0);
 	index_buffer_data.push_back(1);
-	index_buffer_data.push_back(2);
-
-	index_buffer_data.push_back(0);
 	index_buffer_data.push_back(2);
 	index_buffer_data.push_back(3);
-
-	index_buffer_data.push_back(1);
-	index_buffer_data.push_back(5);
-	index_buffer_data.push_back(4);
-
-	index_buffer_data.push_back(1);
-	index_buffer_data.push_back(4);
-	index_buffer_data.push_back(0);
 
 	// Create the new mesh
 	Mesh* mesh = new Mesh(meshName);
@@ -130,7 +115,7 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, glm::vec3 color, fl
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_data.size() * sizeof(GLuint), &index_buffer_data[0], GL_STATIC_DRAW);
 
 	mesh->indexSize = index_buffer_data.size();
-	mesh->mode = Mesh::DRAW_TRIANGLES;
+	mesh->mode = Mesh::DRAW_TRIANGLE_STRIP;
 
 	return mesh;
 }

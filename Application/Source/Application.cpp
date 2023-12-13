@@ -15,6 +15,8 @@
 #include "Scene2.h"
 #include "SceneGalaxy.h"
 #include "SceneLight.h"
+#include "SceneLightSource.h"
+#include "SceneTexture.h"
 #include "KeyboardController.h"
 
 GLFWwindow* m_window;
@@ -108,8 +110,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	//Scene *scene = new Scene2();
-	Scene* scene = new SceneLight();
+	Scene* scene = new SceneTexture();
 	scene->Init();
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
