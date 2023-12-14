@@ -17,6 +17,7 @@
 #include "SceneLight.h"
 #include "SceneLightSource.h"
 #include "SceneTexture.h"
+#include "SceneModel.h"
 #include "KeyboardController.h"
 
 GLFWwindow* m_window;
@@ -111,7 +112,7 @@ void Application::Run()
 {
 	//Main Loop
 	//Load the new texture scene.
-	Scene* scene = new SceneTexture();
+	Scene* scene = new SceneModel();
 	scene->Init();
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame

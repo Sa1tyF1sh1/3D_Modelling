@@ -3,6 +3,7 @@
 
 #include "Mesh.h"
 #include "Vertex.h"
+#include "LoadOBJ.h"
 
 /******************************************************************************/
 /*!
@@ -25,6 +26,9 @@ public:
 	static Mesh* GenerateTorus(const std::string& meshName, glm::vec3 color, float innerR = 1.f, float outerR = 1.f, int numSlice = 360, int numStack = 360);
 	//4.
 	static Mesh* GenerateCube(const std::string& meshName, glm::vec3 color, float topRadius = 1, float btmRadius = 1, int height = 1, int numSlice = 360);
+
+	static Mesh* GenerateOBJ(const std::string& meshName, const std::string& file_path);
+
 
 };
 
