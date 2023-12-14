@@ -110,6 +110,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
+	//Load the new texture scene.
 	Scene* scene = new SceneTexture();
 	scene->Init();
 
